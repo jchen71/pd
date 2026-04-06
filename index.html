@@ -134,13 +134,13 @@ h2{font-size:17px;font-weight:600;margin:22px 0 10px;color:var(--ink2)}
 <div id="s-setup" class="screen active">
   <div class="eyebrow">Game setup</div>
   <h1>Pick a scenario, then pass the device.</h1>
-  <p class="lead">One person sets up the game. Then each of the 7 players takes a private turn — picks a role, reads a briefing, and makes their case. When everyone's done, the President reads all the arguments and decides.</p>
+  <p class="lead">One person sets up the game. Then each of the 7 players takes a private turn — picks a role, reads a briefing, and makes their case. The President goes last, reads all the arguments, and delivers the final decision.</p>
   <div class="alert">
     <div class="at">How it works</div>
     <div class="ab">
       1. Choose a crisis scenario below.<br>
       2. Pass the device around — each player picks their role and builds their argument privately.<br>
-      3. After all 7 players go, the full debate plays out and the President delivers a verdict.<br>
+      3. After all 7 advisors go, the President reads every argument and makes the final call.<br>
       4. Everyone gets scored and receives feedback.
     </div>
   </div>
@@ -223,7 +223,37 @@ h2{font-size:17px;font-weight:600;margin:22px 0 10px;color:var(--ink2)}
   <div class="box" id="handoff-box"></div>
   <div class="player-slots" id="handoff-slots"></div>
   <div class="btn-row">
+    <button class="btn" id="btn-handoff-skip" style="display:none" onclick="skipToGame()">Skip to game →</button>
     <button class="btn primary" id="btn-handoff-next" onclick="startNextTurn()">Pass to next player →</button>
+  </div>
+</div>
+
+<!-- PRESIDENT DECISION -->
+<div id="s-president" class="screen">
+  <div class="eyebrow">Presidential decision</div>
+  <h1>Mr. / Madam President — the room has spoken.</h1>
+  <p class="lead">Read every argument below. Then deliver your verdict.</p>
+  <div id="pres-all-arguments"></div>
+  <div style="margin-top:28px">
+    <h2>Your decision</h2>
+    <p class="lead" style="margin-bottom:14px">Write your response — acknowledge what you heard, name what weighed on you most, and announce your decision.</p>
+    <textarea id="pres-statement" placeholder="Speak as the President. Reference specific advisors. Name the ethical tension. Announce your decision." style="width:100%;min-height:140px;font-family:var(--sans);font-size:13px;color:var(--ink2);background:var(--white);border:1px solid var(--paper3);border-radius:4px;padding:12px 14px;line-height:1.75;resize:vertical" oninput="document.getElementById('pres-verdict-section').style.display=this.value.trim().length>20?'block':'none'"></textarea>
+    <div id="pres-verdict-section" style="display:none;margin-top:18px">
+      <div class="choice-q" style="margin-bottom:10px">Your verdict</div>
+      <div style="display:flex;gap:10px">
+        <button class="choice-card" id="btn-verdict-strike" style="flex:1" onclick="selectVerdict('strike')">
+          <div class="cc-tag">Authorize</div>
+          <div class="cc-text">Strike Authorized</div>
+        </button>
+        <button class="choice-card" id="btn-verdict-restrain" style="flex:1" onclick="selectVerdict('restraint')">
+          <div class="cc-tag">Hold</div>
+          <div class="cc-text">Restraint — Diplomacy Ordered</div>
+        </button>
+      </div>
+    </div>
+  </div>
+  <div class="btn-row">
+    <button class="btn primary" id="btn-pres-confirm" disabled onclick="confirmPresidentDecision()">Deliver my verdict →</button>
   </div>
 </div>
 
@@ -231,12 +261,8 @@ h2{font-size:17px;font-weight:600;margin:22px 0 10px;color:var(--ink2)}
 <div id="s-delib" class="screen">
   <div class="eyebrow">Full cabinet — all arguments</div>
   <h1>Every voice in the room.</h1>
-  <p class="lead">All seven advisors have spoken. Here's what the President heard.</p>
+  <p class="lead">All eight players have spoken. Here's the full record.</p>
   <div id="all-arguments"></div>
-  <div class="spinner" id="delib-spinner" style="margin-top:20px">
-    <div class="spin-ring"></div>
-    The President is weighing everything...
-  </div>
   <div id="delib-president-section" style="display:none">
     <div class="divider"></div>
     <div class="eyebrow" style="margin-bottom:6px">The President speaks</div>
@@ -258,8 +284,6 @@ h2{font-size:17px;font-weight:600;margin:22px 0 10px;color:var(--ink2)}
   <div class="score-grid" id="score-grid-top"></div>
   <h2>Player breakdown</h2>
   <div id="player-scores"></div>
-  <h2>Reflection prompts</h2>
-  <div class="box" id="reflection-box"></div>
   <div class="btn-row">
     <button class="btn" onclick="restart()">Play again</button>
   </div>
@@ -272,6 +296,9 @@ h2{font-size:17px;font-weight:600;margin:22px 0 10px;color:var(--ink2)}
 
 <script>
 const ROLES=[
+  {id:'president',icon:'[POTUS]',title:'President of the United States',desc:'The final decision is yours alone. You\'ve heard every advisor. Now you decide.',stance:'neutral',stanceLabel:'Final Authority',
+   briefing:'You are the President. You don\'t advocate — you decide. After every advisor has made their case, the device comes to you. You\'ll read what they argued, weigh it against everything you know, and announce your verdict. Your word is final.',
+   ethicsNote:'Every decision at this level is a moral one. You carry the weight of every life on both sides. There\'s no right answer — only the one you can defend to history.'},
   {id:'defense',icon:'[DEF]',title:'Secretary of Defense',desc:'You run the military. You tell the President what\'s actually possible — and what it\'ll cost.',stance:'strike',stanceLabel:'Leans: Strike',
    briefing:'You\'ve run the numbers. A strike is executable. The window is real. What keeps you up at night isn\'t the operation itself — it\'s the hour of hesitation that costs you the window entirely. You believe the adversary is watching this room for weakness, and waiting is the most dangerous thing you can do right now.',
    ethicsNote:'Just War theory is your lens. Ask yourself honestly: is this truly a last resort? Is the force proportional to the actual threat? Can civilians be meaningfully protected?'},
@@ -281,18 +308,12 @@ const ROLES=[
   {id:'nsa',icon:'[NSA]',title:'National Security Advisor',desc:'You sit closest to the President. Your job is to make sure the intelligence is solid before anything irreversible happens.',stance:'neutral',stanceLabel:'Neutral',
    briefing:'You\'ve seen the raw intelligence, not the cleaned-up briefing version. There are two competing interpretations and one of them points to a false alarm. You\'re not saying don\'t act. You\'re saying we haven\'t been honest with ourselves about the uncertainty yet.',
    ethicsNote:'Intellectual honesty is your ethical obligation. The President trusts you to tell the truth even when it\'s inconvenient. Overconfidence in flawed intelligence has started catastrophic wars before.'},
-  {id:'vp',icon:'[VP]',title:'Vice President',desc:'You\'re one step from the presidency. You\'re thinking about what this looks like to the American people — and to history.',stance:'neutral',stanceLabel:'Neutral',
-   briefing:'Congress hasn\'t been briefed. The public doesn\'t know this is happening. The legal authority isn\'t clean. And you know that whatever happens in this room today, you may be the one explaining it for the next four years.',
-   ethicsNote:'Democratic accountability doesn\'t disappear when the stakes are high. Can we defend the process we\'re using right now, not just the outcome? What does it say about us that this decision is being made this way?'},
   {id:'transport',icon:'[TRN]',title:'Secretary of Transportation',desc:'You\'re the least expected person in this room. Which means you\'re the one thinking about what actually happens on the ground.',stance:'restrain',stanceLabel:'Leans: Restraint',
    briefing:'You\'ve seen the evacuation plans. They\'re not real. The casualty projections from even a limited nuclear exchange are numbers this room keeps treating like statistics. You came here to say them out loud, because someone has to.',
    ethicsNote:'Put actual people back in this conversation. Not "acceptable losses." Not percentages. People — with families, with addresses, with no idea this meeting is happening.'},
   {id:'cia',icon:'[CIA]',title:'CIA Director',desc:'Your team produced the intelligence that got us into this room. You know how reliable it is — and how it isn\'t.',stance:'neutral',stanceLabel:'Neutral',
    briefing:'You\'re sitting on two things nobody else has: serious doubts about source reliability, and three covert options that could neutralize the threat without a single bomb dropping. You came here to make sure those options get on the table before a decision gets made.',
    ethicsNote:'You have a professional obligation not to let your work be used to ratify a decision that\'s already been made. The uncertainty in that intelligence is real, and this room needs to hear it.'},
-  {id:'un',icon:'[UNA]',title:'UN Ambassador',desc:'You represent the U.S. to the world, and you carry the world\'s expectations back into this room.',stance:'restrain',stanceLabel:'Leans: Restraint',
-   briefing:'A unilateral nuclear strike almost certainly violates international law. Three allied foreign ministers have called you today asking what\'s going on. If we move without the Security Council, we hand every adversary the narrative they\'ve been waiting years to use.',
-   ethicsNote:'Name the legal obligations directly — the NPT, the Geneva Conventions, the UN Charter. These aren\'t optional. And the damage to international norms from a first use of nuclear weapons would outlast every administration in this room.'},
   {id:'jcs',icon:'[JCS]',title:'Chairman, Joint Chiefs',desc:'You\'ve spent your career preparing for a moment like this. You\'re the one who actually has to give the order.',stance:'strike',stanceLabel:'Leans: Strike',
    briefing:'The targeting packages are ready. The window is closing. You\'ve done this long enough to know that presidents always want one more option, one more hour, one more confirmation — and sometimes that\'s exactly how you lose. You need a decision from this room.',
    ethicsNote:'The Laws of Armed Conflict apply regardless of orders from above. "I was told to" isn\'t an ethical defense and you know it. What does your own conscience say when you set the strategy aside?'}
@@ -399,11 +420,14 @@ function startNextTurn(){
   const taken=game.players.map(p=>p.roleId);
   const rg=document.getElementById('role-grid');
   rg.innerHTML='';
+  const otherRoles=ROLES.filter(r=>r.id!=='president');
+  const allOthersTaken=otherRoles.every(r=>taken.includes(r.id));
   ROLES.forEach(r=>{
+    const isLocked=taken.includes(r.id)||(r.id==='president'&&!allOthersTaken);
     const el=document.createElement('div');
-    el.className='role-card'+(taken.includes(r.id)?' taken':'');
-    el.innerHTML=`<div class="rc-icon">${r.icon}</div><div class="rc-title">${r.title}</div><div class="rc-desc">${r.desc}</div><span class="rc-stance stance-${r.stance}">${r.stanceLabel}</span>`;
-    if(!taken.includes(r.id)){
+    el.className='role-card'+(isLocked?' taken':'');
+    el.innerHTML=`<div class="rc-icon">${r.icon}</div><div class="rc-title">${r.title}</div><div class="rc-desc">${r.id==='president'&&!allOthersTaken?'Available once all other roles are taken.':r.desc}</div><span class="rc-stance stance-${r.stance}">${r.stanceLabel}</span>`;
+    if(!isLocked){
       el.onclick=()=>{
         document.querySelectorAll('.role-card:not(.taken)').forEach(c=>c.classList.remove('selected'));
         el.classList.add('selected');
@@ -441,6 +465,7 @@ function goToBriefing(){
 
 function goToArgument(){
   const role=ROLES.find(r=>r.id===game.currentRoleId);
+  if(role.id==='president'){goToPresidentDecision();return;}
   setPhasebar('pb-arg',2,3);
   document.getElementById('arg-role-reminder').textContent=`${role.title} — ${role.briefing.split('.')[0]}.`;
   argChoices={step1:null,step2:null,step3:null};
@@ -489,9 +514,10 @@ function lockInArgument(){
   const arg=[argChoices.step1.text,argChoices.step2.text,argChoices.step3.text].join(' ');
   game.players.push({roleId:game.currentRoleId,arg});
   const isLast=game.players.length===7;
+  const isPresNext=game.players.length===6;
   const role=ROLES.find(r=>r.id===game.currentRoleId);
-  document.getElementById('handoff-title').textContent=isLast?'Everyone\'s in. Time for the verdict.':`Done. Pass it to Player ${game.players.length+1}.`;
-  document.getElementById('handoff-box').innerHTML=`<div class="box-label">Saved</div><div class="box-text"><strong>${role.title}</strong> — argument locked. ${isLast?'All 7 advisors have weighed in.':`${7-game.players.length} player${7-game.players.length!==1?'s':''} to go.`}</div>`;
+  document.getElementById('handoff-title').textContent=isLast?'Everyone\'s in. Time for the verdict.':isPresNext?'Advisors done. Pass to the President.':`Done. Pass it to Player ${game.players.length+1}.`;
+  document.getElementById('handoff-box').innerHTML=`<div class="box-label">Saved</div><div class="box-text"><strong>${role.title}</strong> — argument locked. ${isLast?'All players have weighed in.':isPresNext?'The President reads the arguments and decides.':`${7-game.players.length} player${7-game.players.length!==1?'s':''} to go.`}</div>`;
   const hSlots=document.getElementById('handoff-slots');
   hSlots.innerHTML='';
   for(let i=0;i<7;i++){
@@ -502,8 +528,55 @@ function lockInArgument(){
     else{div.innerHTML=`<span class="slot-num">${i+1}</span><span class="slot-role" style="color:var(--ink4)">Player ${i+1}</span><span class="slot-status slot-empty">Waiting</span>`;}
     hSlots.appendChild(div);
   }
-  document.getElementById('btn-handoff-next').textContent=isLast?'Read the verdict →':`Pass to Player ${game.players.length+1} →`;
+  document.getElementById('btn-handoff-next').textContent=isLast?'Read the verdict →':isPresNext?'Pass to the President →':`Pass to Player ${game.players.length+1} →`;
+  const hasPresident=game.players.some(p=>p.roleId==='president');
+  const skipBtn=document.getElementById('btn-handoff-skip');
+  skipBtn.style.display=(!isLast&&game.players.length>=1)?'inline-flex':'none';
+  skipBtn.textContent=hasPresident?'Skip to deliberation →':'Skip to President →';
   show('s-handoff');
+}
+
+function skipToGame(){
+  const hasPresident=game.players.some(p=>p.roleId==='president');
+  if(hasPresident){showDeliberation();}
+  else{game.currentRoleId='president';goToPresidentDecision();}
+}
+
+function goToPresidentDecision(){
+  const container=document.getElementById('pres-all-arguments');
+  container.innerHTML='';
+  const advisors=game.players.filter(p=>p.roleId!=='president');
+  advisors.forEach((p,i)=>{
+    const role=ROLES.find(r=>r.id===p.roleId);
+    const b=document.createElement('div');
+    b.className='bubble fadein';
+    b.style.animationDelay=(i*0.07)+'s';
+    const sc=role.stance==='strike'?'stance-strike':role.stance==='restrain'?'stance-restrain':'stance-neutral';
+    b.innerHTML=`<div class="bubble-who">${role.title}<span class="bubble-stance ${sc}">${role.stanceLabel}</span></div><div class="bubble-text">${p.arg}</div>`;
+    container.appendChild(b);
+  });
+  document.getElementById('pres-statement').value='';
+  document.getElementById('pres-verdict-section').style.display='none';
+  document.getElementById('btn-pres-confirm').disabled=true;
+  game._presVerdict=null;
+  show('s-president');
+}
+
+function selectVerdict(v){
+  game._presVerdict=v;
+  document.getElementById('btn-verdict-strike').classList.toggle('selected',v==='strike');
+  document.getElementById('btn-verdict-restrain').classList.toggle('selected',v==='restraint');
+  document.getElementById('btn-pres-confirm').disabled=false;
+}
+
+function confirmPresidentDecision(){
+  const statement=document.getElementById('pres-statement').value.trim();
+  game.presidentResponse=statement;
+  game.verdict=game._presVerdict;
+  const presPlayer=game.players.find(p=>p.roleId==='president');
+  if(presPlayer){presPlayer.arg=statement;}
+  else{game.players.push({roleId:'president',arg:statement});}
+  showDeliberation();
 }
 
 function showDeliberation(){
@@ -513,52 +586,12 @@ function showDeliberation(){
   game.players.forEach((p,i)=>{
     const role=ROLES.find(r=>r.id===p.roleId);
     const b=document.createElement('div');
-    b.className='bubble fadein';
+    b.className='bubble fadein'+(role.id==='president'?' president-bub':'');
     b.style.animationDelay=(i*0.07)+'s';
     const sc=role.stance==='strike'?'stance-strike':role.stance==='restrain'?'stance-restrain':'stance-neutral';
     b.innerHTML=`<div class="bubble-who">${role.title}<span class="bubble-stance ${sc}">${role.stanceLabel}</span></div><div class="bubble-text">${p.arg}</div>`;
     container.appendChild(b);
   });
-  document.getElementById('delib-spinner').style.display='block';
-  document.getElementById('delib-president-section').style.display='none';
-  callPresident();
-}
-
-async function callPresident(){
-  const scen=SCENARIOS.find(s=>s.id===game.scenario);
-  const argsText=game.players.map(p=>{
-    const r=ROLES.find(r=>r.id===p.roleId);
-    return `${r.title}: "${p.arg}"`;
-  }).join('\n\n');
-
-  const prompt=`You are the President of the United States in a cabinet simulation. The crisis is:
-
-"${scen.title}: ${scen.text}"
-
-Here is what each advisor argued:
-
-${argsText}
-
-Write your presidential response in 5-7 sentences. Reference specific things you actually heard — show you were listening to particular advisors. Name the ethical tension that weighed on you most. Announce your decision (STRIKE or RESTRAINT) with a real reason. Speak like a person carrying something heavy, not like a speech.
-
-End with exactly one line: VERDICT: STRIKE or VERDICT: RESTRAINT`;
-
-  try{
-    const res=await fetch('https://api.anthropic.com/v1/messages',{
-      method:'POST',headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:600,messages:[{role:'user',content:prompt}]})
-    });
-    const data=await res.json();
-    const raw=data.content.map(c=>c.text||'').join('').trim();
-    const vm=raw.match(/VERDICT:\s*(STRIKE|RESTRAINT)/i);
-    game.verdict=vm?(vm[1].toLowerCase()==='strike'?'strike':'restraint'):(Math.random()>0.5?'strike':'restraint');
-    game.presidentResponse=raw.replace(/VERDICT:\s*(STRIKE|RESTRAINT)/i,'').trim();
-  }catch(e){
-    game.presidentResponse='I\'ve heard every one of you, and I want you to know that. This doesn\'t get easier when you\'re the one who has to make it. I\'ve thought about the people who will never know this conversation happened. I\'ve weighed the case for action and the case for restraint. Here is my decision.';
-    game.verdict=Math.random()>0.5?'strike':'restraint';
-  }
-
-  document.getElementById('delib-spinner').style.display='none';
   document.getElementById('president-text').textContent=game.presidentResponse;
   const vBox=document.getElementById('verdict-box');
   vBox.innerHTML=game.verdict==='strike'
@@ -585,11 +618,12 @@ Score each player on four dimensions (each 0-25):
 - Role accuracy: Did they actually argue from their role's perspective?
 - Persuasiveness: Was their case clear, grounded, and genuinely convincing?
 
+For the President, score on: Ethics, Emotional intelligence, Decision quality (did the decision engage with what advisors actually said?), and Leadership (did they show command presence and genuine weighing of options?).
+
 Also give an overall group score (0-100) for how well they collectively worked through a high-stakes decision together.
-Give 3 group reflection prompts connecting to: Emotional Intelligence, Ethics, and Leadership Competencies.
 
 Respond ONLY as JSON (no markdown):
-{"players":[{"role":"Secretary of Defense","ethics":20,"eq":18,"roleAcc":22,"persuasion":19,"feedback":"2-3 sentences of specific, honest feedback"}],"groupScore":74,"groupNote":"2-3 sentences on how the group worked together","reflections":["...","...","..."]}`;
+{"players":[{"role":"Secretary of Defense","ethics":20,"eq":18,"roleAcc":22,"persuasion":19,"feedback":"2-3 sentences of specific, honest feedback"}],"groupScore":74,"groupNote":"2-3 sentences on how the group worked together"}`;
 
   try{
     const res=await fetch('https://api.anthropic.com/v1/messages',{
@@ -603,8 +637,7 @@ Respond ONLY as JSON (no markdown):
     game.scores={
       players:game.players.map(p=>{const r=ROLES.find(r=>r.id===p.roleId);return{role:r.title,ethics:Math.floor(Math.random()*8)+15,eq:Math.floor(Math.random()*7)+15,roleAcc:Math.floor(Math.random()*8)+15,persuasion:Math.floor(Math.random()*7)+14,feedback:'Your argument reflected your role\'s perspective. To go deeper, try connecting your position more directly to the specific details of the scenario, and engage head-on with the strongest counterargument you knew was coming.'};}),
       groupScore:Math.floor(Math.random()*15)+68,
-      groupNote:'The group brought a real range of perspectives. The most effective moments came when advisors engaged with what others had said, rather than presenting their case like it existed in a vacuum.',
-      reflections:['Which role\'s argument surprised you most? What does that tell you about assumptions you walked in with?','Where did the group\'s emotional intelligence show up — and where did it get crowded out by strategy?','If you ran this simulation with your actual team, what would you do differently as a leader?']
+      groupNote:'The group brought a real range of perspectives. The most effective moments came when advisors engaged with what others had said, rather than presenting their case like it existed in a vacuum.'
     };
   }
   renderScores();
@@ -617,7 +650,6 @@ function renderScores(){
     const total=p.ethics+p.eq+p.roleAcc+p.persuasion;
     return `<div class="player-score-row"><div class="ps-name">${p.role} — <span style="font-family:var(--mono);font-size:12px;color:var(--red-d)">${total}/100</span></div><div style="display:flex;gap:10px;margin:5px 0;flex-wrap:wrap"><span style="font-family:var(--mono);font-size:10px;color:var(--ink4)">Ethics ${p.ethics}/25</span><span style="font-family:var(--mono);font-size:10px;color:var(--ink4)">EQ ${p.eq}/25</span><span style="font-family:var(--mono);font-size:10px;color:var(--ink4)">Role ${p.roleAcc}/25</span><span style="font-family:var(--mono);font-size:10px;color:var(--ink4)">Persuasion ${p.persuasion}/25</span></div><div class="ps-feedback">${p.feedback}</div></div>`;
   }).join('');
-  document.getElementById('reflection-box').innerHTML=`<div class="box-label">For your reflection paper</div>${s.reflections.map((r,i)=>`<p style="margin-bottom:${i<s.reflections.length-1?'12px':'0'};font-size:13px;color:var(--ink2);line-height:1.75;padding-left:14px;border-left:2px solid var(--paper3)">${r}</p>`).join('')}`;
 }
 
 function setPhasebar(id,done,total){
@@ -633,7 +665,7 @@ function show(id){
 }
 
 function restart(){
-  game={scenario:null,players:[],currentTurn:0,currentRoleId:null,presidentResponse:'',verdict:'',scores:null};
+  game={scenario:null,players:[],currentTurn:0,currentRoleId:null,presidentResponse:'',verdict:'',scores:null,_presVerdict:null};
   argChoices={step1:null,step2:null,step3:null};
   document.querySelectorAll('.scenario-opt').forEach(c=>c.classList.remove('selected'));
   document.getElementById('btn-start-turns').disabled=true;
