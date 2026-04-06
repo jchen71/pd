@@ -1,0 +1,647 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Situation Room — Nuclear Crisis Simulation</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --red:#c0392b;--red-d:#922b21;--red-l:#fadbd8;--red-ll:#fef9f9;
+  --green:#1e8449;--green-l:#d5f5e3;
+  --blue:#1a5276;--blue-l:#d6eaf8;
+  --ink:#0d0d0d;--ink2:#2c2c2c;--ink3:#555;--ink4:#888;
+  --paper:#f5f0e8;--paper2:#ede8df;--paper3:#e0d9ce;
+  --white:#fff;
+  --mono:'IBM Plex Mono',monospace;--sans:'IBM Plex Sans',sans-serif;
+}
+html{scroll-behavior:smooth}
+body{font-family:var(--sans);background:var(--paper);color:var(--ink);min-height:100vh;font-size:15px;line-height:1.6}
+.page{max-width:720px;margin:0 auto;padding:2rem 1.25rem 4rem}
+.screen{display:none}.screen.active{display:block}
+.topbar{border-bottom:2px solid var(--ink);padding:14px 0 12px;margin-bottom:32px;display:flex;align-items:baseline;justify-content:space-between;flex-wrap:wrap;gap:8px}
+.topbar-logo{font-family:var(--mono);font-size:12px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--ink)}
+.topbar-class{font-family:var(--mono);font-size:10px;color:var(--red);border:1px solid var(--red);padding:2px 7px;letter-spacing:.1em}
+.phasebar{display:flex;gap:4px;margin-bottom:28px}
+.phase-seg{height:3px;flex:1;background:var(--paper3)}
+.phase-seg.done{background:var(--red)}
+.phase-seg.active{background:var(--red);opacity:.5}
+.eyebrow{font-family:var(--mono);font-size:10px;font-weight:600;color:var(--red-d);text-transform:uppercase;letter-spacing:.14em;margin-bottom:10px}
+h1{font-size:26px;font-weight:600;line-height:1.25;margin-bottom:10px;color:var(--ink)}
+h2{font-size:17px;font-weight:600;margin:22px 0 10px;color:var(--ink2)}
+.lead{font-size:14px;color:var(--ink3);line-height:1.75;margin-bottom:16px}
+.box{background:var(--paper2);border:1px solid var(--paper3);border-radius:4px;padding:16px 18px;margin:12px 0}
+.box-label{font-family:var(--mono);font-size:10px;font-weight:600;color:var(--red-d);text-transform:uppercase;letter-spacing:.12em;margin-bottom:7px}
+.box-text{font-size:13px;color:var(--ink2);line-height:1.75}
+.alert{border-left:3px solid var(--red);background:var(--red-ll);padding:12px 14px;border-radius:0 4px 4px 0;margin:16px 0}
+.alert .at{font-size:12px;font-weight:600;color:var(--red-d);margin-bottom:4px;font-family:var(--mono)}
+.alert .ab{font-size:13px;color:var(--ink2);line-height:1.65}
+.scenario-opt{border:1px solid var(--paper3);border-radius:4px;padding:13px 15px;cursor:pointer;background:var(--white);margin-bottom:8px;transition:all .15s}
+.scenario-opt:hover{border-color:var(--ink4);background:var(--paper)}
+.scenario-opt.selected{border:2px solid var(--red);background:var(--red-ll)}
+.so-title{font-size:13px;font-weight:600;color:var(--ink)}
+.so-desc{font-size:12px;color:var(--ink4);margin-top:3px;line-height:1.55}
+.player-slots{margin:16px 0}
+.slot{display:flex;align-items:center;gap:12px;padding:11px 14px;border:1px solid var(--paper3);border-radius:4px;margin-bottom:8px;background:var(--white)}
+.slot-num{font-family:var(--mono);font-size:11px;font-weight:600;color:var(--ink4);min-width:22px}
+.slot-role{font-size:13px;font-weight:600;flex:1}
+.slot-status{font-family:var(--mono);font-size:10px;padding:2px 8px;border-radius:2px}
+.slot-empty{color:var(--ink4);background:var(--paper2);border:1px solid var(--paper3)}
+.slot-done{color:var(--green);background:var(--green-l);border:1px solid #a9dfbf}
+.slot.is-done{border-color:#a9dfbf;background:#f0faf4}
+.role-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(195px,1fr));gap:10px;margin:14px 0}
+.role-card{border:1px solid var(--paper3);border-radius:4px;padding:14px;cursor:pointer;transition:all .15s;background:var(--white)}
+.role-card:hover{border-color:var(--ink4);background:var(--paper)}
+.role-card.selected{border:2px solid var(--red);background:var(--red-ll)}
+.role-card.taken{opacity:.35;pointer-events:none}
+.rc-icon{font-family:var(--mono);font-size:14px;color:var(--ink4);margin-bottom:5px}
+.rc-title{font-size:13px;font-weight:600;color:var(--ink);margin-bottom:3px}
+.rc-desc{font-size:11px;color:var(--ink4);line-height:1.55}
+.rc-stance{font-family:var(--mono);font-size:10px;font-weight:600;display:inline-block;padding:2px 7px;border-radius:2px;margin-top:7px}
+.stance-strike{background:var(--red-l);color:var(--red-d)}
+.stance-restrain{background:var(--green-l);color:var(--green)}
+.stance-neutral{background:var(--paper3);color:var(--ink3)}
+.choice-step{margin:20px 0}
+.choice-q{font-size:14px;font-weight:600;color:var(--ink);margin-bottom:4px}
+.choice-sub{font-family:var(--mono);font-size:10px;color:var(--ink4);text-transform:uppercase;letter-spacing:.1em;margin-bottom:12px}
+.choice-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.choice-card{border:1px solid var(--paper3);border-radius:4px;padding:13px 14px;cursor:pointer;background:var(--white);transition:all .15s;text-align:left;width:100%}
+.choice-card:hover{border-color:var(--ink4);background:var(--paper)}
+.choice-card.selected{border:2px solid var(--red);background:var(--red-ll)}
+.choice-card.locked{pointer-events:none;opacity:.42}
+.cc-tag{font-family:var(--mono);font-size:9px;font-weight:600;color:var(--ink4);text-transform:uppercase;letter-spacing:.1em;margin-bottom:5px}
+.choice-card.selected .cc-tag{color:var(--red-d)}
+.cc-text{font-size:13px;color:var(--ink2);line-height:1.6}
+.summary-box{background:var(--paper2);border:1px solid var(--paper3);border-radius:4px;padding:14px 16px;margin:16px 0}
+.sb-label{font-family:var(--mono);font-size:10px;font-weight:600;color:var(--red-d);text-transform:uppercase;letter-spacing:.12em;margin-bottom:8px}
+.sb-line{font-size:13px;color:var(--ink2);line-height:1.7;padding:6px 0;border-bottom:1px solid var(--paper3)}
+.sb-line:last-child{border-bottom:none}
+.sb-num{font-family:var(--mono);font-size:10px;color:var(--ink4);margin-right:7px}
+.btn{border:1px solid var(--paper3);border-radius:3px;padding:9px 20px;font-size:13px;font-weight:500;background:var(--white);color:var(--ink);cursor:pointer;transition:all .15s;font-family:var(--sans)}
+.btn:hover{background:var(--paper2);border-color:var(--ink4)}
+.btn.primary{background:var(--red);border-color:var(--red-d);color:var(--white)}
+.btn.primary:hover{background:var(--red-d)}
+.btn:disabled{opacity:.35;cursor:not-allowed;pointer-events:none}
+.btn-row{display:flex;justify-content:flex-end;gap:10px;margin-top:20px}
+.bubble{border:1px solid var(--paper3);border-radius:4px;padding:14px 16px;margin:10px 0;background:var(--white)}
+.bubble.president-bub{border-color:var(--blue);background:var(--blue-l)}
+.bubble-who{font-family:var(--mono);font-size:10px;font-weight:600;color:var(--ink4);margin-bottom:6px;text-transform:uppercase;letter-spacing:.08em}
+.bubble.president-bub .bubble-who{color:var(--blue)}
+.bubble-text{font-size:13px;color:var(--ink2);line-height:1.75}
+.bubble-stance{font-family:var(--mono);font-size:9px;display:inline-block;padding:1px 6px;border-radius:2px;margin-left:6px;vertical-align:middle}
+.spinner{text-align:center;padding:28px 0;color:var(--ink4);font-size:13px;font-family:var(--mono)}
+.spin-ring{width:22px;height:22px;border:2px solid var(--paper3);border-top-color:var(--red);border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 10px}
+@keyframes spin{to{transform:rotate(360deg)}}
+.verdict-banner{border-radius:4px;padding:18px 20px;margin:16px 0;text-align:center}
+.verdict-strike{background:var(--red-l);border:1px solid var(--red)}
+.verdict-restrain{background:var(--green-l);border:1px solid var(--green)}
+.vb-label{font-family:var(--mono);font-size:10px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;margin-bottom:5px}
+.verdict-strike .vb-label{color:var(--red-d)}
+.verdict-restrain .vb-label{color:var(--green)}
+.vb-title{font-size:20px;font-weight:600}
+.verdict-strike .vb-title{color:var(--red-d)}
+.verdict-restrain .vb-title{color:var(--green)}
+.score-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:14px 0}
+.score-card{background:var(--white);border:1px solid var(--paper3);border-radius:4px;padding:14px}
+.sc-label{font-family:var(--mono);font-size:10px;color:var(--ink4);text-transform:uppercase;letter-spacing:.1em;margin-bottom:5px}
+.sc-val{font-size:28px;font-weight:600;color:var(--ink);line-height:1}
+.sc-max{font-size:13px;font-weight:400;color:var(--ink4)}
+.sc-bar{height:4px;background:var(--paper3);border-radius:2px;margin-top:8px;overflow:hidden}
+.sc-bar-fill{height:100%;border-radius:2px;background:var(--red);transition:width .6s ease}
+.player-score-row{padding:12px 0;border-bottom:1px solid var(--paper3)}
+.player-score-row:last-child{border-bottom:none}
+.ps-name{font-size:13px;font-weight:600;color:var(--ink);margin-bottom:4px}
+.ps-feedback{font-size:12px;color:var(--ink3);line-height:1.65}
+.divider{height:1px;background:var(--paper3);margin:20px 0}
+.fadein{animation:fadeup .35s ease forwards;opacity:0}
+@keyframes fadeup{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.game-footer{margin-top:40px;padding-top:14px;border-top:1px solid var(--paper3);font-family:var(--mono);font-size:10px;color:var(--ink4);text-align:center;line-height:1.8}
+.turn-badge{display:inline-flex;align-items:center;gap:8px;background:var(--red-l);border:1px solid var(--red);border-radius:4px;padding:8px 14px;margin-bottom:16px}
+.turn-badge-label{font-family:var(--mono);font-size:11px;font-weight:600;color:var(--red-d)}
+@media(max-width:520px){.role-grid{grid-template-columns:1fr 1fr}.choice-grid{grid-template-columns:1fr}.score-grid{grid-template-columns:1fr}h1{font-size:21px}}
+</style>
+</head>
+<body>
+<div class="page">
+<div class="topbar">
+  <span class="topbar-logo">// The Situation Room</span>
+  <span class="topbar-class">TOP SECRET / SCI</span>
+</div>
+
+<!-- SETUP -->
+<div id="s-setup" class="screen active">
+  <div class="eyebrow">Game setup</div>
+  <h1>Pick a scenario, then pass the device.</h1>
+  <p class="lead">One person sets up the game. Then each of the 7 players takes a private turn — picks a role, reads a briefing, and makes their case. When everyone's done, the President reads all the arguments and decides.</p>
+  <div class="alert">
+    <div class="at">How it works</div>
+    <div class="ab">
+      1. Choose a crisis scenario below.<br>
+      2. Pass the device around — each player picks their role and builds their argument privately.<br>
+      3. After all 7 players go, the full debate plays out and the President delivers a verdict.<br>
+      4. Everyone gets scored and receives feedback.
+    </div>
+  </div>
+  <h2>Choose the crisis</h2>
+  <div id="scenario-select"></div>
+  <h2>Players <span id="player-count-label" style="font-family:var(--mono);font-size:13px;font-weight:400;color:var(--ink4)">(0 / 7 ready)</span></h2>
+  <div class="player-slots" id="player-slots"></div>
+  <div class="btn-row">
+    <button class="btn primary" id="btn-start-turns" disabled onclick="startNextTurn()">Start — pass to Player 1 →</button>
+  </div>
+</div>
+
+<!-- ROLE PICK -->
+<div id="s-rolepick" class="screen">
+  <div class="phasebar" id="pb-role"></div>
+  <div class="turn-badge"><span class="turn-badge-label" id="turn-label-role">Player 1 of 7</span></div>
+  <div class="eyebrow">Choose your role</div>
+  <h1>Who are you in this room?</h1>
+  <p class="lead">Pick the position you'll argue from. Greyed-out roles are already taken.</p>
+  <div class="role-grid" id="role-grid"></div>
+  <div class="btn-row">
+    <button class="btn primary" id="btn-to-briefing" disabled onclick="goToBriefing()">Read my briefing →</button>
+  </div>
+</div>
+
+<!-- BRIEFING -->
+<div id="s-briefing" class="screen">
+  <div class="phasebar" id="pb-brief"></div>
+  <div class="turn-badge"><span class="turn-badge-label" id="turn-label-brief">Player 1 of 7</span></div>
+  <div class="eyebrow">Eyes only — your briefing</div>
+  <h1 id="brief-role-title"></h1>
+  <div class="box" id="brief-role-box"></div>
+  <h2>The situation</h2>
+  <div class="box" id="brief-scenario-box"></div>
+  <div class="btn-row">
+    <button class="btn" onclick="goToRolePick()">← Change role</button>
+    <button class="btn primary" onclick="goToArgument()">Make my case →</button>
+  </div>
+</div>
+
+<!-- ARGUMENT -->
+<div id="s-argument" class="screen">
+  <div class="phasebar" id="pb-arg"></div>
+  <div class="turn-badge"><span class="turn-badge-label" id="turn-label-arg">Player 1 of 7</span></div>
+  <div class="eyebrow">Address the President</div>
+  <h1>Make your case.</h1>
+  <div class="box">
+    <div class="box-label">Your role</div>
+    <div class="box-text" id="arg-role-reminder"></div>
+  </div>
+  <div class="choice-step" id="step1">
+    <div class="choice-q">Step 1 of 3 — What's your opening position?</div>
+    <div class="choice-sub">Pick the angle that fits your role</div>
+    <div class="choice-grid" id="choices-step1"></div>
+  </div>
+  <div class="choice-step" id="step2" style="display:none">
+    <div class="choice-q">Step 2 of 3 — What's the core of your reasoning?</div>
+    <div class="choice-sub">How you argue matters as much as what you argue</div>
+    <div class="choice-grid" id="choices-step2"></div>
+  </div>
+  <div class="choice-step" id="step3" style="display:none">
+    <div class="choice-q">Step 3 of 3 — How do you speak to the President personally?</div>
+    <div class="choice-sub">This is where emotional intelligence comes in</div>
+    <div class="choice-grid" id="choices-step3"></div>
+  </div>
+  <div class="summary-box" id="arg-summary" style="display:none">
+    <div class="sb-label">Your argument — locked in</div>
+    <div id="summary-lines"></div>
+  </div>
+  <div class="btn-row">
+    <button class="btn" onclick="goToBriefing()">← Back</button>
+    <button class="btn primary" id="btn-submit-arg" disabled onclick="lockInArgument()">Lock in my argument →</button>
+  </div>
+</div>
+
+<!-- HANDOFF -->
+<div id="s-handoff" class="screen">
+  <div class="eyebrow">Argument saved</div>
+  <h1 id="handoff-title">Done. Pass it on.</h1>
+  <div class="box" id="handoff-box"></div>
+  <div class="player-slots" id="handoff-slots"></div>
+  <div class="btn-row">
+    <button class="btn primary" id="btn-handoff-next" onclick="startNextTurn()">Pass to next player →</button>
+  </div>
+</div>
+
+<!-- DELIBERATION -->
+<div id="s-delib" class="screen">
+  <div class="eyebrow">Full cabinet — all arguments</div>
+  <h1>Every voice in the room.</h1>
+  <p class="lead">All seven advisors have spoken. Here's what the President heard.</p>
+  <div id="all-arguments"></div>
+  <div class="spinner" id="delib-spinner" style="margin-top:20px">
+    <div class="spin-ring"></div>
+    The President is weighing everything...
+  </div>
+  <div id="delib-president-section" style="display:none">
+    <div class="divider"></div>
+    <div class="eyebrow" style="margin-bottom:6px">The President speaks</div>
+    <div class="bubble president-bub">
+      <div class="bubble-who">President of the United States</div>
+      <div class="bubble-text" id="president-text"></div>
+    </div>
+    <div id="verdict-box"></div>
+    <div class="btn-row">
+      <button class="btn primary" onclick="goToScores()">See everyone's scores →</button>
+    </div>
+  </div>
+</div>
+
+<!-- SCORES -->
+<div id="s-scores" class="screen">
+  <div class="eyebrow">Leadership evaluation</div>
+  <h1>How did everyone do?</h1>
+  <div class="score-grid" id="score-grid-top"></div>
+  <h2>Player breakdown</h2>
+  <div id="player-scores"></div>
+  <h2>Reflection prompts</h2>
+  <div class="box" id="reflection-box"></div>
+  <div class="btn-row">
+    <button class="btn" onclick="restart()">Play again</button>
+  </div>
+</div>
+
+<div class="game-footer">
+  The Situation Room · Leadership &amp; Ethics Simulation · 7 players · one device
+</div>
+</div>
+
+<script>
+const ROLES=[
+  {id:'defense',icon:'[DEF]',title:'Secretary of Defense',desc:'You run the military. You tell the President what\'s actually possible — and what it\'ll cost.',stance:'strike',stanceLabel:'Leans: Strike',
+   briefing:'You\'ve run the numbers. A strike is executable. The window is real. What keeps you up at night isn\'t the operation itself — it\'s the hour of hesitation that costs you the window entirely. You believe the adversary is watching this room for weakness, and waiting is the most dangerous thing you can do right now.',
+   ethicsNote:'Just War theory is your lens. Ask yourself honestly: is this truly a last resort? Is the force proportional to the actual threat? Can civilians be meaningfully protected?'},
+  {id:'state',icon:'[STA]',title:'Secretary of State',desc:'Every U.S. alliance in the world runs through your office. A strike doesn\'t just happen — it ripples.',stance:'restrain',stanceLabel:'Leans: Restraint',
+   briefing:'You\'ve spent 30 years building the relationships that are now on the line. A nuclear strike will blow up three of them before the dust settles. You have back-channels open that nobody else in this room knows about. You need 72 hours. That\'s all you\'re asking for.',
+   ethicsNote:'What precedent does this set? Who else is watching right now, deciding whether to build their own nuclear program? International law isn\'t just paperwork — it\'s the architecture that keeps things from getting worse.'},
+  {id:'nsa',icon:'[NSA]',title:'National Security Advisor',desc:'You sit closest to the President. Your job is to make sure the intelligence is solid before anything irreversible happens.',stance:'neutral',stanceLabel:'Neutral',
+   briefing:'You\'ve seen the raw intelligence, not the cleaned-up briefing version. There are two competing interpretations and one of them points to a false alarm. You\'re not saying don\'t act. You\'re saying we haven\'t been honest with ourselves about the uncertainty yet.',
+   ethicsNote:'Intellectual honesty is your ethical obligation. The President trusts you to tell the truth even when it\'s inconvenient. Overconfidence in flawed intelligence has started catastrophic wars before.'},
+  {id:'vp',icon:'[VP]',title:'Vice President',desc:'You\'re one step from the presidency. You\'re thinking about what this looks like to the American people — and to history.',stance:'neutral',stanceLabel:'Neutral',
+   briefing:'Congress hasn\'t been briefed. The public doesn\'t know this is happening. The legal authority isn\'t clean. And you know that whatever happens in this room today, you may be the one explaining it for the next four years.',
+   ethicsNote:'Democratic accountability doesn\'t disappear when the stakes are high. Can we defend the process we\'re using right now, not just the outcome? What does it say about us that this decision is being made this way?'},
+  {id:'transport',icon:'[TRN]',title:'Secretary of Transportation',desc:'You\'re the least expected person in this room. Which means you\'re the one thinking about what actually happens on the ground.',stance:'restrain',stanceLabel:'Leans: Restraint',
+   briefing:'You\'ve seen the evacuation plans. They\'re not real. The casualty projections from even a limited nuclear exchange are numbers this room keeps treating like statistics. You came here to say them out loud, because someone has to.',
+   ethicsNote:'Put actual people back in this conversation. Not "acceptable losses." Not percentages. People — with families, with addresses, with no idea this meeting is happening.'},
+  {id:'cia',icon:'[CIA]',title:'CIA Director',desc:'Your team produced the intelligence that got us into this room. You know how reliable it is — and how it isn\'t.',stance:'neutral',stanceLabel:'Neutral',
+   briefing:'You\'re sitting on two things nobody else has: serious doubts about source reliability, and three covert options that could neutralize the threat without a single bomb dropping. You came here to make sure those options get on the table before a decision gets made.',
+   ethicsNote:'You have a professional obligation not to let your work be used to ratify a decision that\'s already been made. The uncertainty in that intelligence is real, and this room needs to hear it.'},
+  {id:'un',icon:'[UNA]',title:'UN Ambassador',desc:'You represent the U.S. to the world, and you carry the world\'s expectations back into this room.',stance:'restrain',stanceLabel:'Leans: Restraint',
+   briefing:'A unilateral nuclear strike almost certainly violates international law. Three allied foreign ministers have called you today asking what\'s going on. If we move without the Security Council, we hand every adversary the narrative they\'ve been waiting years to use.',
+   ethicsNote:'Name the legal obligations directly — the NPT, the Geneva Conventions, the UN Charter. These aren\'t optional. And the damage to international norms from a first use of nuclear weapons would outlast every administration in this room.'},
+  {id:'jcs',icon:'[JCS]',title:'Chairman, Joint Chiefs',desc:'You\'ve spent your career preparing for a moment like this. You\'re the one who actually has to give the order.',stance:'strike',stanceLabel:'Leans: Strike',
+   briefing:'The targeting packages are ready. The window is closing. You\'ve done this long enough to know that presidents always want one more option, one more hour, one more confirmation — and sometimes that\'s exactly how you lose. You need a decision from this room.',
+   ethicsNote:'The Laws of Armed Conflict apply regardless of orders from above. "I was told to" isn\'t an ethical defense and you know it. What does your own conscience say when you set the strategy aside?'}
+];
+
+const SCENARIOS=[
+  {id:'rogue',title:'Rogue State Launch Detected',
+   text:'NORAD has confirmed two ballistic missiles launched from a rogue state toward a U.S. ally in the Pacific. Nine minutes to impact. Conventional interception has about a 55% chance of working. The regime has gone completely dark — no communications, no signals. Intelligence suggests they\'re preparing a third launch. The question on the table: hit their launch infrastructure now, or rely on interception and hope the back-channels work?'},
+  {id:'bio',title:'Bioweapon Released in Allied Cities',
+   text:'A weaponized pathogen has been released in three allied capitals. It\'s engineered to resist every known treatment. Attribution points to a state actor with 78% confidence — solid, but not airtight. The attack is still unfolding. Some advisors believe only the credible threat of nuclear retaliation stops the next release. Others aren\'t sure we have the right target. The President has about an hour.'},
+  {id:'cyber',title:'Power Grid Taken Down',
+   text:'A coordinated cyberattack has knocked out the power grid across 14 states, along with water treatment and financial networks. Estimated 40,000 deaths within 72 hours if systems stay down. The adversary is offering to restore everything — for major territorial concessions. The hawks say that\'s a gun to our head and we should respond with nuclear deterrence signaling. The doves say that\'s exactly the escalation the adversary is hoping to provoke.'},
+  {id:'misfire',title:'Possible Accidental Launch Incoming',
+   text:'A nuclear missile — almost certainly launched without authorization by a rogue commander — is 14 minutes from a U.S. city. We\'re still trying to reach the adversary\'s government, but their command structure appears to have broken down. Intelligence says this wasn\'t ordered from the top. The cabinet is split: respond with force and risk a full exchange, or absorb this strike and try to stop escalation there?'}
+];
+
+const STEP1_CHOICES={
+  strike:[
+    {tag:'The window is closing',text:'Every hour we wait, that window gets smaller. Our adversary is watching this room for hesitation — and hesitation right now is the most dangerous thing we can show them.'},
+    {tag:'Not acting is still a choice',text:'I took an oath to defend this country. The threat is real, we have the capability, and choosing to do nothing is itself a decision. I\'m not willing to make that call by default.'},
+    {tag:'Restraint keeps getting read as weakness',text:'We\'ve been through the diplomacy road with this adversary. They have read every act of restraint as permission to push further. That has to stop somewhere.'},
+    {tag:'I have targeting packages ready right now',text:'The military can execute this. We have a narrow window where a strike is still clean and contained. The longer this room talks, the messier the options get.'}
+  ],
+  restrain:[
+    {tag:'We haven\'t tried everything yet',text:'I have back-channels open right now that nobody else in this room knows about. Give me 72 hours before we do something we can\'t undo.'},
+    {tag:'The intelligence is not clean',text:'I\'ve seen the raw data, not the polished briefing. There are two ways to read what we have, and one of them is a false alarm. We cannot launch a nuclear strike on this level of uncertainty.'},
+    {tag:'The human cost isn\'t an abstraction',text:'I\'ve looked at the casualty projections for a nuclear exchange — even a limited one. This room keeps treating them like numbers. I came here today to say they\'re not.'},
+    {tag:'We\'ll blow up three alliances before lunch',text:'Three allied foreign ministers have called me today. If we move without the Security Council, we hand every adversary the narrative they\'ve been building for years. That damage is permanent.'}
+  ],
+  neutral:[
+    {tag:'We\'re not ready to decide yet',text:'I\'m not saying don\'t act. I\'m saying not yet. We have competing readings of this intelligence and we haven\'t been honest with ourselves about which one is right.'},
+    {tag:'There are options nobody\'s talked about',text:'I came in here with three alternatives that don\'t involve a single bomb. Before the President decides, those need to be on the table.'},
+    {tag:'The process matters too',text:'Congress hasn\'t been briefed. The legal authority is shaky. Whatever we decide today, we need to be able to defend it publicly — legally and historically.'},
+    {tag:'Both paths carry catastrophic risk',text:'I\'m not going to pretend there\'s a safe choice here. The question isn\'t how to avoid a catastrophe — it\'s which catastrophe we can actually manage from here.'}
+  ]
+};
+
+const STEP2_CHOICES=[
+  {tag:'Count lives on both sides',text:'Add up the deaths from acting and the deaths from not acting. The option that saves more people overall is the one we go with. We don\'t get to look at only one side of that math.'},
+  {tag:'Walk through the Just War checklist',text:'Legitimate authority. Just cause. Last resort. Proportional force. Civilian protection. Walk through each one honestly and tell me where we actually stand on all of them.'},
+  {tag:'Some lines don\'t get crossed no matter what',text:'There are things we don\'t do regardless of how the math works out. Using nuclear weapons against a civilian population might be one of them — and calling that weakness doesn\'t make it wrong.'},
+  {tag:'What would a leader with integrity do',text:'Forget strategy for a second. What does a person with actual integrity do when they\'re sitting in that chair? What kind of country are we if we make this call the wrong way?'},
+  {tag:'We weren\'t elected to make this call alone',text:'The people who will live — or die — because of this decision never agreed to let this room decide for them. Democratic accountability doesn\'t get suspended when the stakes go up.'},
+  {tag:'When you can\'t undo it, slow down',text:'If we\'re wrong about acting, there\'s no taking it back. If we\'re wrong about waiting, we may be able to fix it. That asymmetry has to mean something for how careful we are right now.'}
+];
+
+const STEP3_CHOICES=[
+  {tag:'Put real faces on the numbers',text:'I need you to think about actual people — not casualty figures, not yield estimates. The families in those cities who have no idea this conversation is happening. That\'s who we\'re deciding about.'},
+  {tag:'You\'ll carry this either way',text:'Whatever you choose, this doesn\'t leave the room — it stays with you. I\'m not saying that to pressure you. I\'m saying it because I think you already know it, and it\'s okay to let it weigh on you.'},
+  {tag:'History is writing this chapter right now',text:'People will be looking back at this moment for a hundred years. The question isn\'t just what we decide — it\'s whether the way we made this decision reflects who we say we are.'},
+  {tag:'This is where values are either real or they aren\'t',text:'We\'ve always said we hold ourselves to a higher standard. That we don\'t start these things. This is the moment where that\'s either true or it isn\'t. There\'s no middle ground here.'},
+  {tag:'Waiting isn\'t the safe option either',text:'I\'m not asking you to ignore what action costs. I\'m asking you not to treat inaction as the safe path by default. There are people who will die if we don\'t move. I\'m carrying that too.'},
+  {tag:'Are we sure enough to live with being wrong?',text:'Before you decide — if we\'re wrong about this, truly wrong, can we live with it? Because that\'s the bar I think we need to actually clear before this room moves.'}
+];
+
+let game={scenario:null,players:[],currentTurn:0,currentRoleId:null,presidentResponse:'',verdict:'',scores:null};
+let argChoices={step1:null,step2:null,step3:null};
+
+function init(){
+  const ss=document.getElementById('scenario-select');
+  SCENARIOS.forEach(s=>{
+    const el=document.createElement('div');
+    el.className='scenario-opt';
+    el.innerHTML=`<div class="so-title">${s.title}</div><div class="so-desc">${s.text.substring(0,130)}...</div>`;
+    el.onclick=()=>{
+      document.querySelectorAll('.scenario-opt').forEach(c=>c.classList.remove('selected'));
+      el.classList.add('selected');
+      game.scenario=s.id;
+      checkSetupReady();
+    };
+    ss.appendChild(el);
+  });
+  renderSetupSlots();
+}
+
+function renderSetupSlots(){
+  const c=document.getElementById('player-slots');
+  c.innerHTML='';
+  for(let i=0;i<7;i++){
+    const p=game.players[i];
+    const div=document.createElement('div');
+    div.className='slot'+(p?' is-done':'');
+    if(p){
+      const r=ROLES.find(r=>r.id===p.roleId);
+      div.innerHTML=`<span class="slot-num">${i+1}</span><span class="slot-role">${r.title}</span><span class="slot-status slot-done">Ready</span>`;
+    } else {
+      div.innerHTML=`<span class="slot-num">${i+1}</span><span class="slot-role" style="color:var(--ink4)">Player ${i+1}</span><span class="slot-status slot-empty">Waiting</span>`;
+    }
+    c.appendChild(div);
+  }
+  document.getElementById('player-count-label').textContent=`(${game.players.length} / 7 ready)`;
+}
+
+function checkSetupReady(){
+  document.getElementById('btn-start-turns').disabled=!game.scenario;
+}
+
+function startNextTurn(){
+  const idx=game.players.length;
+  if(idx>=7){showDeliberation();return;}
+  game.currentTurn=idx;
+  game.currentRoleId=null;
+  argChoices={step1:null,step2:null,step3:null};
+  const taken=game.players.map(p=>p.roleId);
+  const rg=document.getElementById('role-grid');
+  rg.innerHTML='';
+  ROLES.forEach(r=>{
+    const el=document.createElement('div');
+    el.className='role-card'+(taken.includes(r.id)?' taken':'');
+    el.innerHTML=`<div class="rc-icon">${r.icon}</div><div class="rc-title">${r.title}</div><div class="rc-desc">${r.desc}</div><span class="rc-stance stance-${r.stance}">${r.stanceLabel}</span>`;
+    if(!taken.includes(r.id)){
+      el.onclick=()=>{
+        document.querySelectorAll('.role-card:not(.taken)').forEach(c=>c.classList.remove('selected'));
+        el.classList.add('selected');
+        game.currentRoleId=r.id;
+        document.getElementById('btn-to-briefing').disabled=false;
+      };
+    }
+    rg.appendChild(el);
+  });
+  document.getElementById('btn-to-briefing').disabled=true;
+  setTurnLabels(idx+1);
+  setPhasebar('pb-role',0,3);
+  show('s-rolepick');
+}
+
+function setTurnLabels(n){
+  ['turn-label-role','turn-label-brief','turn-label-arg'].forEach(id=>{
+    const el=document.getElementById(id);
+    if(el)el.textContent=`Player ${n} of 7`;
+  });
+}
+
+function goToRolePick(){setPhasebar('pb-role',0,3);show('s-rolepick');}
+
+function goToBriefing(){
+  if(!game.currentRoleId)return;
+  const role=ROLES.find(r=>r.id===game.currentRoleId);
+  const scen=SCENARIOS.find(s=>s.id===game.scenario);
+  setPhasebar('pb-brief',1,3);
+  document.getElementById('brief-role-title').textContent=role.title;
+  document.getElementById('brief-role-box').innerHTML=`<div class="box-label">Your briefing</div><div class="box-text">${role.briefing}<br><br><strong>Ethical angle:</strong> ${role.ethicsNote}</div>`;
+  document.getElementById('brief-scenario-box').innerHTML=`<div class="box-label">The situation — ${scen.title}</div><div class="box-text">${scen.text}</div>`;
+  show('s-briefing');
+}
+
+function goToArgument(){
+  const role=ROLES.find(r=>r.id===game.currentRoleId);
+  setPhasebar('pb-arg',2,3);
+  document.getElementById('arg-role-reminder').textContent=`${role.title} — ${role.briefing.split('.')[0]}.`;
+  argChoices={step1:null,step2:null,step3:null};
+  document.getElementById('step2').style.display='none';
+  document.getElementById('step3').style.display='none';
+  document.getElementById('arg-summary').style.display='none';
+  document.getElementById('btn-submit-arg').disabled=true;
+  buildChoices('choices-step1',STEP1_CHOICES[role.stance]||STEP1_CHOICES.neutral,1);
+  buildChoices('choices-step2',STEP2_CHOICES,2);
+  buildChoices('choices-step3',STEP3_CHOICES,3);
+  show('s-argument');
+}
+
+function buildChoices(containerId,options,step){
+  const el=document.getElementById(containerId);
+  el.innerHTML='';
+  options.forEach(opt=>{
+    const btn=document.createElement('button');
+    btn.className='choice-card';
+    btn.innerHTML=`<div class="cc-tag">${opt.tag}</div><div class="cc-text">${opt.text}</div>`;
+    btn.onclick=()=>selectChoice(step,opt,btn,containerId);
+    el.appendChild(btn);
+  });
+}
+
+function selectChoice(step,opt,btn,containerId){
+  document.querySelectorAll(`#${containerId} .choice-card`).forEach(c=>{c.classList.remove('selected');c.classList.add('locked');});
+  btn.classList.add('selected');btn.classList.remove('locked');
+  argChoices['step'+step]=opt;
+  if(step===1){document.getElementById('step2').style.display='block';document.getElementById('step2').scrollIntoView({behavior:'smooth',block:'start'});}
+  else if(step===2){document.getElementById('step3').style.display='block';document.getElementById('step3').scrollIntoView({behavior:'smooth',block:'start'});}
+  else if(step===3){showArgSummary();}
+}
+
+function showArgSummary(){
+  if(!argChoices.step1||!argChoices.step2||!argChoices.step3)return;
+  document.getElementById('summary-lines').innerHTML=
+    [{num:'01',t:argChoices.step1.text},{num:'02',t:argChoices.step2.text},{num:'03',t:argChoices.step3.text}]
+    .map(l=>`<div class="sb-line"><span class="sb-num">${l.num}</span>${l.t}</div>`).join('');
+  document.getElementById('arg-summary').style.display='block';
+  document.getElementById('btn-submit-arg').disabled=false;
+  document.getElementById('arg-summary').scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+function lockInArgument(){
+  const arg=[argChoices.step1.text,argChoices.step2.text,argChoices.step3.text].join(' ');
+  game.players.push({roleId:game.currentRoleId,arg});
+  const isLast=game.players.length===7;
+  const role=ROLES.find(r=>r.id===game.currentRoleId);
+  document.getElementById('handoff-title').textContent=isLast?'Everyone\'s in. Time for the verdict.':`Done. Pass it to Player ${game.players.length+1}.`;
+  document.getElementById('handoff-box').innerHTML=`<div class="box-label">Saved</div><div class="box-text"><strong>${role.title}</strong> — argument locked. ${isLast?'All 7 advisors have weighed in.':`${7-game.players.length} player${7-game.players.length!==1?'s':''} to go.`}</div>`;
+  const hSlots=document.getElementById('handoff-slots');
+  hSlots.innerHTML='';
+  for(let i=0;i<7;i++){
+    const p=game.players[i];
+    const div=document.createElement('div');
+    div.className='slot'+(p?' is-done':'');
+    if(p){const r=ROLES.find(r=>r.id===p.roleId);div.innerHTML=`<span class="slot-num">${i+1}</span><span class="slot-role">${r.title}</span><span class="slot-status slot-done">Ready</span>`;}
+    else{div.innerHTML=`<span class="slot-num">${i+1}</span><span class="slot-role" style="color:var(--ink4)">Player ${i+1}</span><span class="slot-status slot-empty">Waiting</span>`;}
+    hSlots.appendChild(div);
+  }
+  document.getElementById('btn-handoff-next').textContent=isLast?'Read the verdict →':`Pass to Player ${game.players.length+1} →`;
+  show('s-handoff');
+}
+
+function showDeliberation(){
+  show('s-delib');
+  const container=document.getElementById('all-arguments');
+  container.innerHTML='';
+  game.players.forEach((p,i)=>{
+    const role=ROLES.find(r=>r.id===p.roleId);
+    const b=document.createElement('div');
+    b.className='bubble fadein';
+    b.style.animationDelay=(i*0.07)+'s';
+    const sc=role.stance==='strike'?'stance-strike':role.stance==='restrain'?'stance-restrain':'stance-neutral';
+    b.innerHTML=`<div class="bubble-who">${role.title}<span class="bubble-stance ${sc}">${role.stanceLabel}</span></div><div class="bubble-text">${p.arg}</div>`;
+    container.appendChild(b);
+  });
+  document.getElementById('delib-spinner').style.display='block';
+  document.getElementById('delib-president-section').style.display='none';
+  callPresident();
+}
+
+async function callPresident(){
+  const scen=SCENARIOS.find(s=>s.id===game.scenario);
+  const argsText=game.players.map(p=>{
+    const r=ROLES.find(r=>r.id===p.roleId);
+    return `${r.title}: "${p.arg}"`;
+  }).join('\n\n');
+
+  const prompt=`You are the President of the United States in a cabinet simulation. The crisis is:
+
+"${scen.title}: ${scen.text}"
+
+Here is what each advisor argued:
+
+${argsText}
+
+Write your presidential response in 5-7 sentences. Reference specific things you actually heard — show you were listening to particular advisors. Name the ethical tension that weighed on you most. Announce your decision (STRIKE or RESTRAINT) with a real reason. Speak like a person carrying something heavy, not like a speech.
+
+End with exactly one line: VERDICT: STRIKE or VERDICT: RESTRAINT`;
+
+  try{
+    const res=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:600,messages:[{role:'user',content:prompt}]})
+    });
+    const data=await res.json();
+    const raw=data.content.map(c=>c.text||'').join('').trim();
+    const vm=raw.match(/VERDICT:\s*(STRIKE|RESTRAINT)/i);
+    game.verdict=vm?(vm[1].toLowerCase()==='strike'?'strike':'restraint'):(Math.random()>0.5?'strike':'restraint');
+    game.presidentResponse=raw.replace(/VERDICT:\s*(STRIKE|RESTRAINT)/i,'').trim();
+  }catch(e){
+    game.presidentResponse='I\'ve heard every one of you, and I want you to know that. This doesn\'t get easier when you\'re the one who has to make it. I\'ve thought about the people who will never know this conversation happened. I\'ve weighed the case for action and the case for restraint. Here is my decision.';
+    game.verdict=Math.random()>0.5?'strike':'restraint';
+  }
+
+  document.getElementById('delib-spinner').style.display='none';
+  document.getElementById('president-text').textContent=game.presidentResponse;
+  const vBox=document.getElementById('verdict-box');
+  vBox.innerHTML=game.verdict==='strike'
+    ?`<div class="verdict-banner verdict-strike"><div class="vb-label">Presidential Decision</div><div class="vb-title">Strike Authorized</div></div>`
+    :`<div class="verdict-banner verdict-restrain"><div class="vb-label">Presidential Decision</div><div class="vb-title">Restraint — Diplomacy Ordered</div></div>`;
+  document.getElementById('delib-president-section').style.display='block';
+  document.getElementById('delib-president-section').classList.add('fadein');
+  window.scrollTo({top:document.body.scrollHeight,behavior:'smooth'});
+}
+
+async function goToScores(){
+  show('s-scores');
+  document.getElementById('score-grid-top').innerHTML='<div class="spinner" style="grid-column:span 2"><div class="spin-ring"></div>Evaluating all players...</div>';
+  const scen=SCENARIOS.find(s=>s.id===game.scenario);
+  const argsText=game.players.map(p=>{const r=ROLES.find(r=>r.id===p.roleId);return `${r.title}: "${p.arg}"`;}).join('\n');
+  const prompt=`Evaluate these students in a nuclear crisis leadership simulation. Scenario: "${scen.title}". Verdict: ${game.verdict}.
+
+Players and their arguments:
+${argsText}
+
+Score each player on four dimensions (each 0-25):
+- Ethics: Did they engage honestly with the moral dimensions?
+- Emotional intelligence: Did they show awareness of human cost without losing their argument?
+- Role accuracy: Did they actually argue from their role's perspective?
+- Persuasiveness: Was their case clear, grounded, and genuinely convincing?
+
+Also give an overall group score (0-100) for how well they collectively worked through a high-stakes decision together.
+Give 3 group reflection prompts connecting to: Emotional Intelligence, Ethics, and Leadership Competencies.
+
+Respond ONLY as JSON (no markdown):
+{"players":[{"role":"Secretary of Defense","ethics":20,"eq":18,"roleAcc":22,"persuasion":19,"feedback":"2-3 sentences of specific, honest feedback"}],"groupScore":74,"groupNote":"2-3 sentences on how the group worked together","reflections":["...","...","..."]}`;
+
+  try{
+    const res=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1400,messages:[{role:'user',content:prompt}]})
+    });
+    const data=await res.json();
+    const raw=data.content.map(c=>c.text||'').join('');
+    game.scores=JSON.parse(raw.replace(/```json|```/g,'').trim());
+  }catch(e){
+    game.scores={
+      players:game.players.map(p=>{const r=ROLES.find(r=>r.id===p.roleId);return{role:r.title,ethics:Math.floor(Math.random()*8)+15,eq:Math.floor(Math.random()*7)+15,roleAcc:Math.floor(Math.random()*8)+15,persuasion:Math.floor(Math.random()*7)+14,feedback:'Your argument reflected your role\'s perspective. To go deeper, try connecting your position more directly to the specific details of the scenario, and engage head-on with the strongest counterargument you knew was coming.'};}),
+      groupScore:Math.floor(Math.random()*15)+68,
+      groupNote:'The group brought a real range of perspectives. The most effective moments came when advisors engaged with what others had said, rather than presenting their case like it existed in a vacuum.',
+      reflections:['Which role\'s argument surprised you most? What does that tell you about assumptions you walked in with?','Where did the group\'s emotional intelligence show up — and where did it get crowded out by strategy?','If you ran this simulation with your actual team, what would you do differently as a leader?']
+    };
+  }
+  renderScores();
+}
+
+function renderScores(){
+  const s=game.scores;
+  document.getElementById('score-grid-top').innerHTML=`<div class="score-card" style="grid-column:span 2"><div class="sc-label">Group leadership score</div><div class="sc-val">${s.groupScore}<span class="sc-max"> / 100</span></div><div class="sc-bar"><div class="sc-bar-fill" style="width:${s.groupScore}%"></div></div><div style="font-size:12px;color:var(--ink3);margin-top:8px;line-height:1.65">${s.groupNote}</div></div>`;
+  document.getElementById('player-scores').innerHTML=s.players.map(p=>{
+    const total=p.ethics+p.eq+p.roleAcc+p.persuasion;
+    return `<div class="player-score-row"><div class="ps-name">${p.role} — <span style="font-family:var(--mono);font-size:12px;color:var(--red-d)">${total}/100</span></div><div style="display:flex;gap:10px;margin:5px 0;flex-wrap:wrap"><span style="font-family:var(--mono);font-size:10px;color:var(--ink4)">Ethics ${p.ethics}/25</span><span style="font-family:var(--mono);font-size:10px;color:var(--ink4)">EQ ${p.eq}/25</span><span style="font-family:var(--mono);font-size:10px;color:var(--ink4)">Role ${p.roleAcc}/25</span><span style="font-family:var(--mono);font-size:10px;color:var(--ink4)">Persuasion ${p.persuasion}/25</span></div><div class="ps-feedback">${p.feedback}</div></div>`;
+  }).join('');
+  document.getElementById('reflection-box').innerHTML=`<div class="box-label">For your reflection paper</div>${s.reflections.map((r,i)=>`<p style="margin-bottom:${i<s.reflections.length-1?'12px':'0'};font-size:13px;color:var(--ink2);line-height:1.75;padding-left:14px;border-left:2px solid var(--paper3)">${r}</p>`).join('')}`;
+}
+
+function setPhasebar(id,done,total){
+  const el=document.getElementById(id);if(!el)return;
+  el.innerHTML='';
+  for(let i=0;i<total;i++){const d=document.createElement('div');d.className='phase-seg'+(i<done?' done':i===done?' active':'');el.appendChild(d);}
+}
+
+function show(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function restart(){
+  game={scenario:null,players:[],currentTurn:0,currentRoleId:null,presidentResponse:'',verdict:'',scores:null};
+  argChoices={step1:null,step2:null,step3:null};
+  document.querySelectorAll('.scenario-opt').forEach(c=>c.classList.remove('selected'));
+  document.getElementById('btn-start-turns').disabled=true;
+  renderSetupSlots();
+  show('s-setup');
+}
+
+init();
+</script>
+</body>
+</html>
