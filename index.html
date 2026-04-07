@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>The Situation Room — Nuclear Crisis Simulation</title>
+<title>The Situation Room — Crisis Ethics Simulation</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
@@ -120,6 +120,15 @@ h2{font-size:17px;font-weight:600;margin:22px 0 10px;color:var(--ink2)}
 .game-footer{margin-top:40px;padding-top:14px;border-top:1px solid var(--paper3);font-family:var(--mono);font-size:10px;color:var(--ink4);text-align:center;line-height:1.8}
 .turn-badge{display:inline-flex;align-items:center;gap:8px;background:var(--red-l);border:1px solid var(--red);border-radius:4px;padding:8px 14px;margin-bottom:16px}
 .turn-badge-label{font-family:var(--mono);font-size:11px;font-weight:600;color:var(--red-d)}
+
+/* OUTCOME ANIMATION SCREEN */
+#s-outcome{background:var(--paper)}
+.outcome-stage{width:100%;max-width:500px;margin:0 auto;display:flex;flex-direction:column;align-items:center;padding:30px 20px}
+.outcome-title{font-family:var(--mono);font-size:13px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;margin-bottom:8px;text-align:center}
+.outcome-subtitle{font-size:14px;color:var(--ink3);text-align:center;margin-bottom:28px;line-height:1.6}
+canvas#outcome-canvas{border-radius:8px;display:block;max-width:100%}
+.outcome-btn-row{margin-top:28px;display:flex;gap:10px;justify-content:center}
+
 @media(max-width:520px){.role-grid{grid-template-columns:1fr 1fr}.choice-grid{grid-template-columns:1fr}.score-grid{grid-template-columns:1fr}h1{font-size:21px}}
 </style>
 </head>
@@ -127,7 +136,6 @@ h2{font-size:17px;font-weight:600;margin:22px 0 10px;color:var(--ink2)}
 <div class="page">
 <div class="topbar">
   <span class="topbar-logo">// The Situation Room</span>
-  <span class="topbar-class">TOP SECRET / SCI</span>
 </div>
 
 <!-- SETUP -->
@@ -231,25 +239,16 @@ h2{font-size:17px;font-weight:600;margin:22px 0 10px;color:var(--ink2)}
 <!-- PRESIDENT DECISION -->
 <div id="s-president" class="screen">
   <div class="eyebrow">Presidential decision</div>
-  <h1>Mr. / Madam President — the room has spoken.</h1>
+  <h1 id="pres-h1">Mr. / Madam President — the room has spoken.</h1>
   <p class="lead">Read every argument below. Then deliver your verdict.</p>
   <div id="pres-all-arguments"></div>
   <div style="margin-top:28px">
     <h2>Your decision</h2>
-    <p class="lead" style="margin-bottom:14px">Write your response — acknowledge what you heard, name what weighed on you most, and announce your decision.</p>
+    <p class="lead" style="margin-bottom:14px" id="pres-decision-lead">Write your response — acknowledge what you heard, name what weighed on you most, and announce your decision.</p>
     <textarea id="pres-statement" placeholder="Speak as the President. Reference specific advisors. Name the ethical tension. Announce your decision." style="width:100%;min-height:140px;font-family:var(--sans);font-size:13px;color:var(--ink2);background:var(--white);border:1px solid var(--paper3);border-radius:4px;padding:12px 14px;line-height:1.75;resize:vertical" oninput="document.getElementById('pres-verdict-section').style.display=this.value.trim().length>20?'block':'none'"></textarea>
     <div id="pres-verdict-section" style="display:none;margin-top:18px">
       <div class="choice-q" style="margin-bottom:10px">Your verdict</div>
-      <div style="display:flex;gap:10px">
-        <button class="choice-card" id="btn-verdict-strike" style="flex:1" onclick="selectVerdict('strike')">
-          <div class="cc-tag">Authorize</div>
-          <div class="cc-text">Strike Authorized</div>
-        </button>
-        <button class="choice-card" id="btn-verdict-restrain" style="flex:1" onclick="selectVerdict('restraint')">
-          <div class="cc-tag">Hold</div>
-          <div class="cc-text">Restraint — Diplomacy Ordered</div>
-        </button>
-      </div>
+      <div style="display:flex;gap:10px" id="verdict-buttons"></div>
     </div>
   </div>
   <div class="btn-row">
@@ -272,7 +271,21 @@ h2{font-size:17px;font-weight:600;margin:22px 0 10px;color:var(--ink2)}
     </div>
     <div id="verdict-box"></div>
     <div class="btn-row">
+      <button class="btn primary" onclick="goToOutcome()">See the outcome →</button>
+    </div>
+  </div>
+</div>
+
+<!-- OUTCOME ANIMATION -->
+<div id="s-outcome" class="screen">
+  <div class="outcome-stage">
+    <div class="eyebrow" id="outcome-eyebrow">The consequence</div>
+    <div class="outcome-title" id="outcome-title"></div>
+    <div class="outcome-subtitle" id="outcome-subtitle"></div>
+    <canvas id="outcome-canvas" width="460" height="340"></canvas>
+    <div class="outcome-btn-row">
       <button class="btn primary" onclick="goToScores()">See everyone's scores →</button>
+      <button class="btn" onclick="restart()">Play again</button>
     </div>
   </div>
 </div>
@@ -295,6 +308,7 @@ h2{font-size:17px;font-weight:600;margin:22px 0 10px;color:var(--ink2)}
 </div>
 
 <script>
+/* ── DATA ─────────────────────────────────────────────────────── */
 const ROLES=[
   {id:'president',icon:'[POTUS]',title:'President of the United States',desc:'The final decision is yours alone. You\'ve heard every advisor. Now you decide.',stance:'neutral',stanceLabel:'Final Authority',
    briefing:'You are the President. You don\'t advocate — you decide. After every advisor has made their case, the device comes to you. You\'ll read what they argued, weigh it against everything you know, and announce your verdict. Your word is final.',
@@ -320,34 +334,58 @@ const ROLES=[
 ];
 
 const SCENARIOS=[
-  {id:'rogue',title:'Rogue State Launch Detected',
-   text:'NORAD has confirmed two ballistic missiles launched from a rogue state toward a U.S. ally in the Pacific. Nine minutes to impact. Conventional interception has about a 55% chance of working. The regime has gone completely dark — no communications, no signals. Intelligence suggests they\'re preparing a third launch. The question on the table: hit their launch infrastructure now, or rely on interception and hope the back-channels work?'},
-  {id:'bio',title:'Bioweapon Released in Allied Cities',
-   text:'A weaponized pathogen has been released in three allied capitals. It\'s engineered to resist every known treatment. Attribution points to a state actor with 78% confidence — solid, but not airtight. The attack is still unfolding. Some advisors believe only the credible threat of nuclear retaliation stops the next release. Others aren\'t sure we have the right target. The President has about an hour.'},
-  {id:'cyber',title:'Power Grid Taken Down',
-   text:'A coordinated cyberattack has knocked out the power grid across 14 states, along with water treatment and financial networks. Estimated 40,000 deaths within 72 hours if systems stay down. The adversary is offering to restore everything — for major territorial concessions. The hawks say that\'s a gun to our head and we should respond with nuclear deterrence signaling. The doves say that\'s exactly the escalation the adversary is hoping to provoke.'},
-  {id:'misfire',title:'Possible Accidental Launch Incoming',
-   text:'A nuclear missile — almost certainly launched without authorization by a rogue commander — is 14 minutes from a U.S. city. We\'re still trying to reach the adversary\'s government, but their command structure appears to have broken down. Intelligence says this wasn\'t ordered from the top. The cabinet is split: respond with force and risk a full exchange, or absorb this strike and try to stop escalation there?'}
+  {id:'misfire',title:'Incoming Nuclear Strike Detected',
+   text:'NORAD has confirmed a ballistic missile inbound toward a major U.S. city. Eight minutes to impact. Intelligence is 80% confident it was an authorized launch — not an accident. The adversary has gone dark. Military is ready to retaliate immediately. The question: authorize a retaliatory nuclear strike now, or hold and attempt last-minute diplomacy?',
+   verdictA:'strike', verdictALabel:'Authorize Retaliation',
+   verdictB:'restraint', verdictBLabel:'Hold — Attempt Diplomacy'},
+  {id:'pharma',title:'Life-Saving Drug Priced Out of Reach',
+   text:'A pharmaceutical company holds the patent on the only effective treatment for a rapidly spreading terminal illness. They have set the price at $180,000 per course — deliberately out of reach for uninsured patients. Dozens are dying weekly because they cannot afford it. The FDA has a generic manufacturer ready. The question: is the company ethically in the wrong, and should government intervene to force access?',
+   verdictA:'guilty', verdictALabel:'Pharmacies / Companies Are in the Wrong',
+   verdictB:'notguilty', verdictBLabel:'Companies Are Not in the Wrong'}
+];
+
+const PHARMA_ROLES=[
+  {id:'president',icon:'[CHAIR]',title:'Chair of the Ethics Panel',desc:'The final decision is yours alone. You\'ve heard every voice. Now you rule.',stance:'neutral',stanceLabel:'Final Authority',
+   briefing:'You chair the national bioethics panel convened by Congress. You don\'t advocate — you rule. After every panelist has made their case, you\'ll read their arguments, weigh the moral and legal dimensions, and announce the panel\'s official finding.',
+   ethicsNote:'This decision will set precedent for decades. There is no clean answer — only the one you can defend to history and to the families watching.'},
+  {id:'patient-adv',icon:'[PAT]',title:'Patient Rights Advocate',desc:'You represent the families who cannot afford the drug. Real people are dying now.',stance:'strike',stanceLabel:'Leans: Guilty',
+   briefing:'You\'ve been in those hospital rooms. You\'ve watched people die from a treatable condition because a number on a price sheet was too high. You are here to make sure this panel never forgets that.',
+   ethicsNote:'Distributive justice is your lens. Access to life-saving medicine should not depend on wealth. A society that allows preventable death for profit has crossed a moral line.'},
+  {id:'pharma-exec',icon:'[PHM]',title:'Pharmaceutical Industry Representative',desc:'You defend the company\'s right to price its innovation and recoup R&D investment.',stance:'restrain',stanceLabel:'Leans: Not Guilty',
+   briefing:'The drug took 14 years and $2.6 billion to develop. Nine out of ten candidates fail before one reaches market. Without the ability to price for profit, the next breakthrough never gets funded. You are here to defend that system.',
+   ethicsNote:'Incentive structures matter. If you remove the reward, you kill the research pipeline. The alternative — no new drugs — costs more lives in the long run.'},
+  {id:'bioethicist',icon:'[ETH]',title:'Professor of Bioethics',desc:'You bring the philosophical frameworks — and refuse to let either side oversimplify.',stance:'neutral',stanceLabel:'Neutral',
+   briefing:'You\'ve spent 20 years studying the intersection of markets and medicine. You know the utilitarian argument. You know the rights-based argument. You\'re here to make sure both get a fair hearing — and that neither side pretends the other\'s concerns don\'t exist.',
+   ethicsNote:'The question isn\'t just "is pricing legal?" — it\'s whether legal and ethical are the same thing here. They often aren\'t.'},
+  {id:'economist',icon:'[ECO]',title:'Health Economist',desc:'You follow the money — and you know the long-term consequences of intervention.',stance:'restrain',stanceLabel:'Leans: Not Guilty',
+   briefing:'Government price controls sound simple. They aren\'t. You\'ve modeled what happens to drug development pipelines after forced licensing. The downstream effects kill more people than the short-term intervention saves. You\'re here to make sure the panel understands the full math.',
+   ethicsNote:'Consequentialism cuts both ways. The most ethical outcome is the one that saves the most lives over time — not just today.'},
+  {id:'legislator',icon:'[LEG]',title:'Congressional Representative',desc:'You represent a district where 40 families lost someone to this disease last month.',stance:'strike',stanceLabel:'Leans: Guilty',
+   briefing:'You ran on healthcare access. You have constituents who are burying their children over a pricing decision. You are here to speak for them, and you are not interested in abstractions today.',
+   ethicsNote:'Democratic accountability demands that elected officials act when markets fail the vulnerable. The question is whether the law already permits intervention — and if not, whether it should.'},
+  {id:'legal',icon:'[LAW]',title:'Constitutional Law Scholar',desc:'You assess the legal and precedent-setting dimensions of any ruling.',stance:'neutral',stanceLabel:'Neutral',
+   briefing:'Compulsory licensing exists in international law for public health emergencies. The U.S. has never used it domestically. You\'re here to explain what the law actually says, what forced access would require, and what it would mean for intellectual property rights going forward.',
+   ethicsNote:'Law and ethics diverge here. Something can be legal and still be wrong — or illegal and still be right. Part of your role is naming that gap honestly.'}
 ];
 
 const STEP1_CHOICES={
   strike:[
+    {tag:'People are dying right now',text:'Every hour we wait to act, someone with this illness who cannot afford treatment dies. We can end that today. The only question is whether we choose to.'},
     {tag:'The window is closing',text:'Every hour we wait, that window gets smaller. Our adversary is watching this room for hesitation — and hesitation right now is the most dangerous thing we can show them.'},
-    {tag:'Not acting is still a choice',text:'I took an oath to defend this country. The threat is real, we have the capability, and choosing to do nothing is itself a decision. I\'m not willing to make that call by default.'},
-    {tag:'Restraint keeps getting read as weakness',text:'We\'ve been through the diplomacy road with this adversary. They have read every act of restraint as permission to push further. That has to stop somewhere.'},
-    {tag:'I have targeting packages ready right now',text:'The military can execute this. We have a narrow window where a strike is still clean and contained. The longer this room talks, the messier the options get.'}
+    {tag:'Not acting is still a choice',text:'Choosing to do nothing is itself a decision. The status quo isn\'t neutral — it\'s a choice to let preventable harm continue. I\'m not willing to make that call by default.'},
+    {tag:'Restraint keeps getting read as permission',text:'Every time we\'ve deferred on issues like this, the industry has read it as permission to push further. That has to stop somewhere.'}
   ],
   restrain:[
-    {tag:'We haven\'t tried everything yet',text:'I have back-channels open right now that nobody else in this room knows about. Give me 72 hours before we do something we can\'t undo.'},
+    {tag:'The research pipeline is real',text:'The $2.6 billion it took to develop this drug came from investors who expected a return. Remove that expectation and the next drug never gets funded. The pipeline collapses.'},
     {tag:'The intelligence is not clean',text:'I\'ve seen the raw data, not the polished briefing. There are two ways to read what we have, and one of them is a false alarm. We cannot launch a nuclear strike on this level of uncertainty.'},
-    {tag:'The human cost isn\'t an abstraction',text:'I\'ve looked at the casualty projections for a nuclear exchange — even a limited one. This room keeps treating them like numbers. I came here today to say they\'re not.'},
-    {tag:'We\'ll blow up three alliances before lunch',text:'Three allied foreign ministers have called me today. If we move without the Security Council, we hand every adversary the narrative they\'ve been building for years. That damage is permanent.'}
+    {tag:'Intervention has downstream costs',text:'Price controls and compulsory licensing have been modeled extensively. The 10-year effects on drug development are severe. We may save lives today and lose far more in the decades ahead.'},
+    {tag:'We\'ll blow up the innovation system',text:'Three CEOs have called me today. If we move on forced licensing without a clear legal basis, we hand every future litigant a precedent they\'ll use to gut pharmaceutical investment for a generation.'}
   ],
   neutral:[
-    {tag:'We\'re not ready to decide yet',text:'I\'m not saying don\'t act. I\'m saying not yet. We have competing readings of this intelligence and we haven\'t been honest with ourselves about which one is right.'},
-    {tag:'There are options nobody\'s talked about',text:'I came in here with three alternatives that don\'t involve a single bomb. Before the President decides, those need to be on the table.'},
-    {tag:'The process matters too',text:'Congress hasn\'t been briefed. The legal authority is shaky. Whatever we decide today, we need to be able to defend it publicly — legally and historically.'},
-    {tag:'Both paths carry catastrophic risk',text:'I\'m not going to pretend there\'s a safe choice here. The question isn\'t how to avoid a catastrophe — it\'s which catastrophe we can actually manage from here.'}
+    {tag:'We\'re not ready to decide yet',text:'I\'m not saying don\'t act. I\'m saying not yet. We have competing moral frameworks here and we haven\'t been honest with ourselves about which one actually applies.'},
+    {tag:'There are options nobody\'s talked about',text:'I came in here with three alternatives — tiered pricing, emergency subsidies, and voluntary licensing — that don\'t require a single court order. Before anyone decides, those need to be on the table.'},
+    {tag:'The legal question matters',text:'Congress hasn\'t fully addressed this. The authority is contested. Whatever we decide today, we need to be able to defend it legally and historically.'},
+    {tag:'Both paths carry serious costs',text:'I\'m not going to pretend there\'s a clean choice here. The question isn\'t how to avoid harm — it\'s which harm we can actually manage from this point forward.'}
   ]
 };
 
@@ -369,9 +407,13 @@ const STEP3_CHOICES=[
   {tag:'Are we sure enough to live with being wrong?',text:'Before you decide — if we\'re wrong about this, truly wrong, can we live with it? Because that\'s the bar I think we need to actually clear before this room moves.'}
 ];
 
-let game={scenario:null,players:[],currentTurn:0,currentRoleId:null,presidentResponse:'',verdict:'',scores:null};
+/* ── STATE ─────────────────────────────────────────────────────── */
+let game={scenario:null,players:[],currentTurn:0,currentRoleId:null,presidentResponse:'',verdict:'',scores:null,_presVerdict:null};
 let argChoices={step1:null,step2:null,step3:null};
 
+function activeRoles(){return game.scenario==='pharma'?PHARMA_ROLES:ROLES;}
+
+/* ── INIT ─────────────────────────────────────────────────────── */
 function init(){
   const ss=document.getElementById('scenario-select');
   SCENARIOS.forEach(s=>{
@@ -397,7 +439,7 @@ function renderSetupSlots(){
     const div=document.createElement('div');
     div.className='slot'+(p?' is-done':'');
     if(p){
-      const r=ROLES.find(r=>r.id===p.roleId);
+      const r=activeRoles().find(r=>r.id===p.roleId);
       div.innerHTML=`<span class="slot-num">${i+1}</span><span class="slot-role">${r.title}</span><span class="slot-status slot-done">Ready</span>`;
     } else {
       div.innerHTML=`<span class="slot-num">${i+1}</span><span class="slot-role" style="color:var(--ink4)">Player ${i+1}</span><span class="slot-status slot-empty">Waiting</span>`;
@@ -411,6 +453,7 @@ function checkSetupReady(){
   document.getElementById('btn-start-turns').disabled=!game.scenario;
 }
 
+/* ── TURNS ─────────────────────────────────────────────────────── */
 function startNextTurn(){
   const idx=game.players.length;
   if(idx>=7){showDeliberation();return;}
@@ -418,11 +461,12 @@ function startNextTurn(){
   game.currentRoleId=null;
   argChoices={step1:null,step2:null,step3:null};
   const taken=game.players.map(p=>p.roleId);
+  const roles=activeRoles();
   const rg=document.getElementById('role-grid');
   rg.innerHTML='';
-  const otherRoles=ROLES.filter(r=>r.id!=='president');
+  const otherRoles=roles.filter(r=>r.id!=='president');
   const allOthersTaken=otherRoles.every(r=>taken.includes(r.id));
-  ROLES.forEach(r=>{
+  roles.forEach(r=>{
     const isLocked=taken.includes(r.id)||(r.id==='president'&&!allOthersTaken);
     const el=document.createElement('div');
     el.className='role-card'+(isLocked?' taken':'');
@@ -454,7 +498,7 @@ function goToRolePick(){setPhasebar('pb-role',0,3);show('s-rolepick');}
 
 function goToBriefing(){
   if(!game.currentRoleId)return;
-  const role=ROLES.find(r=>r.id===game.currentRoleId);
+  const role=activeRoles().find(r=>r.id===game.currentRoleId);
   const scen=SCENARIOS.find(s=>s.id===game.scenario);
   setPhasebar('pb-brief',1,3);
   document.getElementById('brief-role-title').textContent=role.title;
@@ -464,7 +508,7 @@ function goToBriefing(){
 }
 
 function goToArgument(){
-  const role=ROLES.find(r=>r.id===game.currentRoleId);
+  const role=activeRoles().find(r=>r.id===game.currentRoleId);
   if(role.id==='president'){goToPresidentDecision();return;}
   setPhasebar('pb-arg',2,3);
   document.getElementById('arg-role-reminder').textContent=`${role.title} — ${role.briefing.split('.')[0]}.`;
@@ -515,24 +559,24 @@ function lockInArgument(){
   game.players.push({roleId:game.currentRoleId,arg});
   const isLast=game.players.length===7;
   const isPresNext=game.players.length===6;
-  const role=ROLES.find(r=>r.id===game.currentRoleId);
-  document.getElementById('handoff-title').textContent=isLast?'Everyone\'s in. Time for the verdict.':isPresNext?'Advisors done. Pass to the President.':`Done. Pass it to Player ${game.players.length+1}.`;
-  document.getElementById('handoff-box').innerHTML=`<div class="box-label">Saved</div><div class="box-text"><strong>${role.title}</strong> — argument locked. ${isLast?'All players have weighed in.':isPresNext?'The President reads the arguments and decides.':`${7-game.players.length} player${7-game.players.length!==1?'s':''} to go.`}</div>`;
+  const role=activeRoles().find(r=>r.id===game.currentRoleId);
+  document.getElementById('handoff-title').textContent=isLast?'Everyone\'s in. Time for the verdict.':isPresNext?'Advisors done. Pass to the decision-maker.':`Done. Pass it to Player ${game.players.length+1}.`;
+  document.getElementById('handoff-box').innerHTML=`<div class="box-label">Saved</div><div class="box-text"><strong>${role.title}</strong> — argument locked. ${isLast?'All players have weighed in.':isPresNext?'The decision-maker reads the arguments and decides.':`${7-game.players.length} player${7-game.players.length!==1?'s':''} to go.`}</div>`;
   const hSlots=document.getElementById('handoff-slots');
   hSlots.innerHTML='';
   for(let i=0;i<7;i++){
     const p=game.players[i];
     const div=document.createElement('div');
     div.className='slot'+(p?' is-done':'');
-    if(p){const r=ROLES.find(r=>r.id===p.roleId);div.innerHTML=`<span class="slot-num">${i+1}</span><span class="slot-role">${r.title}</span><span class="slot-status slot-done">Ready</span>`;}
+    if(p){const r=activeRoles().find(r=>r.id===p.roleId);div.innerHTML=`<span class="slot-num">${i+1}</span><span class="slot-role">${r.title}</span><span class="slot-status slot-done">Ready</span>`;}
     else{div.innerHTML=`<span class="slot-num">${i+1}</span><span class="slot-role" style="color:var(--ink4)">Player ${i+1}</span><span class="slot-status slot-empty">Waiting</span>`;}
     hSlots.appendChild(div);
   }
-  document.getElementById('btn-handoff-next').textContent=isLast?'Read the verdict →':isPresNext?'Pass to the President →':`Pass to Player ${game.players.length+1} →`;
+  document.getElementById('btn-handoff-next').textContent=isLast?'Read the verdict →':isPresNext?'Pass to the decision-maker →':`Pass to Player ${game.players.length+1} →`;
   const hasPresident=game.players.some(p=>p.roleId==='president');
   const skipBtn=document.getElementById('btn-handoff-skip');
   skipBtn.style.display=(!isLast&&game.players.length>=1)?'inline-flex':'none';
-  skipBtn.textContent=hasPresident?'Skip to deliberation →':'Skip to President →';
+  skipBtn.textContent=hasPresident?'Skip to deliberation →':'Skip to decision-maker →';
   show('s-handoff');
 }
 
@@ -542,12 +586,33 @@ function skipToGame(){
   else{game.currentRoleId='president';goToPresidentDecision();}
 }
 
+/* ── PRESIDENT DECISION ──────────────────────────────────────── */
 function goToPresidentDecision(){
+  const scen=SCENARIOS.find(s=>s.id===game.scenario);
+  // Update heading/label for pharma scenario
+  if(game.scenario==='pharma'){
+    document.getElementById('pres-h1').textContent='Chair — the panel has spoken.';
+    document.getElementById('pres-decision-lead').textContent='Read every argument below. Then write your ruling — acknowledge what you heard, name what weighed on you most, and announce your finding.';
+  } else {
+    document.getElementById('pres-h1').textContent='Mr. / Madam President — the room has spoken.';
+    document.getElementById('pres-decision-lead').textContent='Read every argument below. Then deliver your verdict.';
+  }
+  // Build verdict buttons dynamically
+  const vb=document.getElementById('verdict-buttons');
+  vb.innerHTML=`
+    <button class="choice-card" id="btn-verdict-a" style="flex:1" onclick="selectVerdict('${scen.verdictA}')">
+      <div class="cc-tag">Option A</div>
+      <div class="cc-text">${scen.verdictALabel}</div>
+    </button>
+    <button class="choice-card" id="btn-verdict-b" style="flex:1" onclick="selectVerdict('${scen.verdictB}')">
+      <div class="cc-tag">Option B</div>
+      <div class="cc-text">${scen.verdictBLabel}</div>
+    </button>`;
   const container=document.getElementById('pres-all-arguments');
   container.innerHTML='';
   const advisors=game.players.filter(p=>p.roleId!=='president');
   advisors.forEach((p,i)=>{
-    const role=ROLES.find(r=>r.id===p.roleId);
+    const role=activeRoles().find(r=>r.id===p.roleId);
     const b=document.createElement('div');
     b.className='bubble fadein';
     b.style.animationDelay=(i*0.07)+'s';
@@ -564,8 +629,9 @@ function goToPresidentDecision(){
 
 function selectVerdict(v){
   game._presVerdict=v;
-  document.getElementById('btn-verdict-strike').classList.toggle('selected',v==='strike');
-  document.getElementById('btn-verdict-restrain').classList.toggle('selected',v==='restraint');
+  const scen=SCENARIOS.find(s=>s.id===game.scenario);
+  document.getElementById('btn-verdict-a').classList.toggle('selected',v===scen.verdictA);
+  document.getElementById('btn-verdict-b').classList.toggle('selected',v===scen.verdictB);
   document.getElementById('btn-pres-confirm').disabled=false;
 }
 
@@ -579,12 +645,13 @@ function confirmPresidentDecision(){
   showDeliberation();
 }
 
+/* ── DELIBERATION ─────────────────────────────────────────────── */
 function showDeliberation(){
   show('s-delib');
   const container=document.getElementById('all-arguments');
   container.innerHTML='';
   game.players.forEach((p,i)=>{
-    const role=ROLES.find(r=>r.id===p.roleId);
+    const role=activeRoles().find(r=>r.id===p.roleId);
     const b=document.createElement('div');
     b.className='bubble fadein'+(role.id==='president'?' president-bub':'');
     b.style.animationDelay=(i*0.07)+'s';
@@ -593,21 +660,452 @@ function showDeliberation(){
     container.appendChild(b);
   });
   document.getElementById('president-text').textContent=game.presidentResponse;
+  const scen=SCENARIOS.find(s=>s.id===game.scenario);
+  const isA=game.verdict===scen.verdictA;
   const vBox=document.getElementById('verdict-box');
-  vBox.innerHTML=game.verdict==='strike'
-    ?`<div class="verdict-banner verdict-strike"><div class="vb-label">Presidential Decision</div><div class="vb-title">Strike Authorized</div></div>`
-    :`<div class="verdict-banner verdict-restrain"><div class="vb-label">Presidential Decision</div><div class="vb-title">Restraint — Diplomacy Ordered</div></div>`;
+  vBox.innerHTML=isA
+    ?`<div class="verdict-banner verdict-strike"><div class="vb-label">Decision</div><div class="vb-title">${scen.verdictALabel}</div></div>`
+    :`<div class="verdict-banner verdict-restrain"><div class="vb-label">Decision</div><div class="vb-title">${scen.verdictBLabel}</div></div>`;
   document.getElementById('delib-president-section').style.display='block';
   document.getElementById('delib-president-section').classList.add('fadein');
   window.scrollTo({top:document.body.scrollHeight,behavior:'smooth'});
 }
 
+/* ── OUTCOME ANIMATION ─────────────────────────────────────────── */
+function goToOutcome(){
+  show('s-outcome');
+  const v=game.verdict;
+  const scen=SCENARIOS.find(s=>s.id===game.scenario);
+  const canvas=document.getElementById('outcome-canvas');
+  const ctx=canvas.getContext('2d');
+  // Clear
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+
+  if(scen.id==='misfire'){
+    if(v==='strike'){
+      // Planet explosion
+      document.getElementById('outcome-eyebrow').textContent='The Consequence';
+      document.getElementById('outcome-title').textContent='RETALIATION AUTHORIZED';
+      document.getElementById('outcome-subtitle').textContent='The retaliatory strike was launched. What followed changed the world forever.';
+      animatePlanetExplosion(ctx,canvas);
+    } else {
+      // Planet safe
+      document.getElementById('outcome-eyebrow').textContent='The Consequence';
+      document.getElementById('outcome-title').textContent='DIPLOMACY ORDERED';
+      document.getElementById('outcome-subtitle').textContent='Restraint held. Back-channels opened. The world held its breath — and survived.';
+      animatePlanetSafe(ctx,canvas);
+    }
+  } else {
+    // pharma
+    if(v==='guilty'){
+      // Pharmacist in jail
+      document.getElementById('outcome-eyebrow').textContent='The Ruling';
+      document.getElementById('outcome-title').textContent='COMPANIES RULED IN THE WRONG';
+      document.getElementById('outcome-subtitle').textContent='The panel found the pricing practices unethical. Legal action followed. Executives faced consequences.';
+      animatePharmacistJail(ctx,canvas);
+    } else {
+      // Person dying
+      document.getElementById('outcome-eyebrow').textContent='The Ruling';
+      document.getElementById('outcome-title').textContent='COMPANIES CLEARED';
+      document.getElementById('outcome-subtitle').textContent='The panel found no wrongdoing. The drug remained unaffordable. The dying continued.';
+      animatePersonDying(ctx,canvas);
+    }
+  }
+}
+
+/* ── ANIMATIONS ──────────────────────────────────────────────── */
+function animatePlanetExplosion(ctx,canvas){
+  const W=canvas.width,H=canvas.height;
+  let t=0;
+  const particles=[];
+  // planet center
+  const cx=W/2,cy=H/2+20;
+  const pr=70;
+
+  function spawnParticles(n){
+    for(let i=0;i<n;i++){
+      const angle=Math.random()*Math.PI*2;
+      const speed=1.5+Math.random()*5;
+      particles.push({
+        x:cx+Math.cos(angle)*pr*(0.3+Math.random()*0.7),
+        y:cy+Math.sin(angle)*pr*(0.3+Math.random()*0.7),
+        vx:Math.cos(angle)*speed,vy:Math.sin(angle)*speed,
+        r:3+Math.random()*8,
+        color:`hsl(${Math.random()*40+10},100%,${50+Math.random()*30}%)`,
+        life:1,decay:0.008+Math.random()*0.015
+      });
+    }
+  }
+
+  function draw(){
+    ctx.clearRect(0,0,W,H);
+    // bg
+    const bg=ctx.createRadialGradient(cx,cy,0,cx,cy,W*0.7);
+    bg.addColorStop(0,`rgba(60,0,0,${Math.min(t/60,1)})`);
+    bg.addColorStop(1,'#0a0006');
+    ctx.fillStyle=bg;ctx.fillRect(0,0,W,H);
+
+    // stars
+    ctx.fillStyle='white';
+    for(let i=0;i<80;i++){
+      const sx=((i*137+50)%W),sy=((i*89+30)%H);
+      ctx.globalAlpha=0.5+0.5*Math.sin(t*0.05+i);
+      ctx.fillRect(sx,sy,1.5,1.5);
+    }
+    ctx.globalAlpha=1;
+
+    const phase=Math.min(t/120,1);
+    if(phase<1){
+      // draw planet shrinking/cracking
+      const scale=1-phase*0.4;
+      ctx.save();ctx.translate(cx,cy);ctx.scale(scale,scale);
+      // planet body
+      const pg=ctx.createRadialGradient(-20,-20,5,0,0,pr);
+      pg.addColorStop(0,'#5a8fd6');pg.addColorStop(0.5,'#2a5ca8');pg.addColorStop(1,'#0a1a40');
+      ctx.beginPath();ctx.arc(0,0,pr,0,Math.PI*2);ctx.fillStyle=pg;ctx.fill();
+      // continents
+      ctx.fillStyle='rgba(60,140,60,0.85)';
+      ctx.beginPath();ctx.ellipse(-20,-10,30,18,0.5,0,Math.PI*2);ctx.fill();
+      ctx.beginPath();ctx.ellipse(25,15,22,12,-0.3,0,Math.PI*2);ctx.fill();
+      ctx.beginPath();ctx.ellipse(-5,30,15,8,0.2,0,Math.PI*2);ctx.fill();
+      // crack overlay
+      if(phase>0.2){
+        ctx.strokeStyle=`rgba(255,120,0,${(phase-0.2)/0.8})`;
+        ctx.lineWidth=2+phase*4;
+        ctx.beginPath();ctx.moveTo(-pr*0.3,-pr*0.8);ctx.lineTo(0,0);ctx.lineTo(pr*0.5,pr*0.6);ctx.stroke();
+        ctx.beginPath();ctx.moveTo(pr*0.6,-pr*0.5);ctx.lineTo(0,0);ctx.lineTo(-pr*0.7,pr*0.4);ctx.stroke();
+      }
+      ctx.restore();
+    }
+
+    // explosion ring
+    if(t>80){
+      const er=(t-80)*4;
+      ctx.beginPath();ctx.arc(cx,cy,er,0,Math.PI*2);
+      ctx.strokeStyle=`rgba(255,180,0,${Math.max(0,1-(t-80)/80)})`;
+      ctx.lineWidth=6;ctx.stroke();
+    }
+
+    // particles
+    particles.forEach((p,i)=>{
+      p.x+=p.vx;p.y+=p.vy;p.vy+=0.05;p.life-=p.decay;
+      ctx.globalAlpha=Math.max(0,p.life);
+      ctx.beginPath();ctx.arc(p.x,p.y,p.r*p.life,0,Math.PI*2);
+      ctx.fillStyle=p.color;ctx.fill();
+    });
+    ctx.globalAlpha=1;
+
+    // spawn more particles during explosion
+    if(t>60&&t<200&&t%3===0)spawnParticles(8);
+
+    // text
+    if(t>150){
+      const alpha=Math.min((t-150)/30,1);
+      ctx.globalAlpha=alpha;
+      ctx.fillStyle='#ff4444';
+      ctx.font='bold 22px IBM Plex Mono, monospace';
+      ctx.textAlign='center';
+      ctx.fillText('MUTUAL ASSURED DESTRUCTION',cx,H-40);
+      ctx.globalAlpha=1;
+    }
+
+    t++;
+    if(t<400)requestAnimationFrame(draw);
+  }
+  draw();
+}
+
+function animatePlanetSafe(ctx,canvas){
+  const W=canvas.width,H=canvas.height;
+  let t=0;
+  const cx=W/2,cy=H/2+10;
+  const pr=70;
+
+  function draw(){
+    ctx.clearRect(0,0,W,H);
+    // space bg
+    const bg=ctx.createRadialGradient(cx,cy,0,cx,cy,W*0.8);
+    bg.addColorStop(0,'#0a1228');bg.addColorStop(1,'#010409');
+    ctx.fillStyle=bg;ctx.fillRect(0,0,W,H);
+
+    // stars twinkling
+    for(let i=0;i<100;i++){
+      const sx=((i*137+50)%W),sy=((i*89+30)%H);
+      ctx.globalAlpha=0.3+0.7*Math.abs(Math.sin(t*0.03+i*0.4));
+      ctx.fillStyle='white';ctx.fillRect(sx,sy,1.5,1.5);
+    }
+    ctx.globalAlpha=1;
+
+    // slow orbit glow
+    const glowR=90+8*Math.sin(t*0.04);
+    const glow=ctx.createRadialGradient(cx,cy,pr-5,cx,cy,glowR);
+    glow.addColorStop(0,'rgba(80,180,255,0.15)');glow.addColorStop(1,'rgba(0,0,0,0)');
+    ctx.fillStyle=glow;ctx.beginPath();ctx.arc(cx,cy,glowR,0,Math.PI*2);ctx.fill();
+
+    // planet
+    const pg=ctx.createRadialGradient(cx-20,cy-20,5,cx,cy,pr);
+    pg.addColorStop(0,'#6aa8e8');pg.addColorStop(0.5,'#2a70c8');pg.addColorStop(1,'#0a2050');
+    ctx.beginPath();ctx.arc(cx,cy,pr,0,Math.PI*2);ctx.fillStyle=pg;ctx.fill();
+
+    // continents (gentle sway)
+    ctx.save();ctx.translate(cx,cy);ctx.rotate(Math.sin(t*0.008)*0.02);
+    ctx.fillStyle='rgba(60,155,70,0.9)';
+    ctx.beginPath();ctx.ellipse(-20,-10,30,18,0.5,0,Math.PI*2);ctx.fill();
+    ctx.beginPath();ctx.ellipse(25,15,22,12,-0.3,0,Math.PI*2);ctx.fill();
+    ctx.beginPath();ctx.ellipse(-5,32,15,8,0.2,0,Math.PI*2);ctx.fill();
+    // cloud wisps
+    ctx.fillStyle='rgba(255,255,255,0.25)';
+    ctx.beginPath();ctx.ellipse(10,-35,28,7,0.1+t*0.0005,0,Math.PI*2);ctx.fill();
+    ctx.beginPath();ctx.ellipse(-30,5,20,5,-0.2+t*0.0004,0,Math.PI*2);ctx.fill();
+    ctx.restore();
+
+    // atmosphere rim
+    const rim=ctx.createRadialGradient(cx,cy,pr-4,cx,cy,pr+14);
+    rim.addColorStop(0,'rgba(120,200,255,0.3)');rim.addColorStop(1,'rgba(0,0,0,0)');
+    ctx.fillStyle=rim;ctx.beginPath();ctx.arc(cx,cy,pr+14,0,Math.PI*2);ctx.fill();
+
+    // peaceful text fade in
+    if(t>60){
+      const alpha=Math.min((t-60)/40,1);
+      ctx.globalAlpha=alpha;
+      ctx.fillStyle='#88ddff';
+      ctx.font='bold 18px IBM Plex Mono, monospace';
+      ctx.textAlign='center';
+      ctx.fillText('CRISIS AVERTED',cx,H-50);
+      ctx.font='12px IBM Plex Sans, sans-serif';
+      ctx.fillStyle='#aaccee';
+      ctx.fillText('Diplomacy held. The world continues.',cx,H-28);
+      ctx.globalAlpha=1;
+    }
+
+    t++;
+    if(t<500)requestAnimationFrame(draw);
+  }
+  draw();
+}
+
+function animatePharmacistJail(ctx,canvas){
+  const W=canvas.width,H=canvas.height;
+  let t=0;
+
+  function draw(){
+    ctx.clearRect(0,0,W,H);
+    // bg — cold institutional gray
+    ctx.fillStyle='#1a1a2e';ctx.fillRect(0,0,W,H);
+
+    // floor
+    ctx.fillStyle='#2a2a3a';ctx.fillRect(0,H*0.68,W,H*0.32);
+    ctx.strokeStyle='#333348';ctx.lineWidth=1;
+    for(let i=0;i<W;i+=40){ctx.beginPath();ctx.moveTo(i,H*0.68);ctx.lineTo(i,H);ctx.stroke();}
+    for(let j=H*0.68;j<H;j+=40){ctx.beginPath();ctx.moveTo(0,j);ctx.lineTo(W,j);ctx.stroke();}
+
+    // jail cell wall
+    ctx.fillStyle='#2e2e40';ctx.fillRect(W/2-120,60,240,H*0.65);
+
+    // bars
+    const barColor='#888899';
+    const barX=W/2-110,barW=220,barTop=70,barH=H*0.55;
+    ctx.strokeStyle=barColor;ctx.lineWidth=8;ctx.lineCap='round';
+    for(let b=0;b<=6;b++){
+      const bx=barX+b*(barW/6);
+      ctx.beginPath();ctx.moveTo(bx,barTop);ctx.lineTo(bx,barTop+barH);ctx.stroke();
+    }
+    // horizontal bars
+    ctx.lineWidth=6;
+    ctx.beginPath();ctx.moveTo(barX,barTop+barH*0.3);ctx.lineTo(barX+barW,barTop+barH*0.3);ctx.stroke();
+    ctx.beginPath();ctx.moveTo(barX,barTop+barH*0.7);ctx.lineTo(barX+barW,barTop+barH*0.7);ctx.stroke();
+    // top & bottom crossbars
+    ctx.lineWidth=10;
+    ctx.beginPath();ctx.moveTo(barX,barTop);ctx.lineTo(barX+barW,barTop);ctx.stroke();
+    ctx.beginPath();ctx.moveTo(barX,barTop+barH);ctx.lineTo(barX+barW,barTop+barH);ctx.stroke();
+
+    // figure inside cell
+    const px=W/2,py=H*0.52;
+    const sway=Math.sin(t*0.03)*3;
+
+    // lab coat body
+    ctx.fillStyle='#e8e8ee';
+    ctx.beginPath();ctx.roundRect(px-18+sway,py-30,36,55,4);ctx.fill();
+    // white coat details
+    ctx.strokeStyle='#aaaacc';ctx.lineWidth=1.5;
+    ctx.beginPath();ctx.moveTo(px+sway,py-28);ctx.lineTo(px+sway,py+20);ctx.stroke();
+
+    // head
+    ctx.fillStyle='#e8c090';
+    ctx.beginPath();ctx.arc(px+sway,py-46,18,0,Math.PI*2);ctx.fill();
+    // hair
+    ctx.fillStyle='#443322';
+    ctx.beginPath();ctx.arc(px+sway,py-56,13,Math.PI,0);ctx.fill();
+
+    // arms down, dejected
+    ctx.fillStyle='#e8c090';
+    ctx.beginPath();ctx.roundRect(px-24+sway,py-20,10,35,5);ctx.fill();
+    ctx.beginPath();ctx.roundRect(px+14+sway,py-20,10,35,5);ctx.fill();
+
+    // legs
+    ctx.fillStyle='#333355';
+    ctx.beginPath();ctx.roundRect(px-14+sway,py+22,12,40,4);ctx.fill();
+    ctx.beginPath();ctx.roundRect(px+2+sway,py+22,12,40,4);ctx.fill();
+
+    // name tag
+    ctx.fillStyle='#ffddaa';
+    ctx.beginPath();ctx.roundRect(px-10+sway,py-15,20,12,2);ctx.fill();
+    ctx.fillStyle='#553300';ctx.font='7px sans-serif';ctx.textAlign='center';
+    ctx.fillText('RxCEO',px+sway,py-7);
+
+    // sad expression — droopy mouth
+    ctx.strokeStyle='#884422';ctx.lineWidth=2;ctx.lineCap='round';
+    ctx.beginPath();ctx.arc(px+sway,py-42,6,0.3*Math.PI,0.7*Math.PI);ctx.stroke();
+    // eyes
+    ctx.fillStyle='#443322';
+    ctx.beginPath();ctx.arc(px-6+sway,py-48,2.5,0,Math.PI*2);ctx.fill();
+    ctx.beginPath();ctx.arc(px+6+sway,py-48,2.5,0,Math.PI*2);ctx.fill();
+
+    // "GUILTY" stamp
+    if(t>60){
+      const stampt=Math.min((t-60)/20,1);
+      ctx.save();
+      ctx.translate(W/2,H*0.82);
+      ctx.rotate(-0.12);
+      ctx.globalAlpha=stampt;
+      ctx.strokeStyle='#cc2222';ctx.lineWidth=4;
+      ctx.strokeRect(-65,-22,130,44);
+      ctx.fillStyle='#cc2222';ctx.font='bold 32px IBM Plex Mono, monospace';ctx.textAlign='center';
+      ctx.fillText('GUILTY',0,12);
+      ctx.globalAlpha=1;
+      ctx.restore();
+    }
+
+    // spotlight
+    const sg=ctx.createRadialGradient(px,py-46,10,px,py,160);
+    sg.addColorStop(0,'rgba(255,240,180,0.08)');sg.addColorStop(1,'rgba(0,0,0,0)');
+    ctx.fillStyle=sg;ctx.fillRect(0,0,W,H);
+
+    t++;
+    if(t<500)requestAnimationFrame(draw);
+  }
+  draw();
+}
+
+function animatePersonDying(ctx,canvas){
+  const W=canvas.width,H=canvas.height;
+  let t=0;
+  // hospital room feel
+
+  function easeIn(v){return v*v;}
+
+  function draw(){
+    ctx.clearRect(0,0,W,H);
+    // dim hospital bg
+    const fade=Math.min(t/300,1);
+    const bgR=Math.floor(30-fade*20),bgG=Math.floor(28-fade*18),bgB=Math.floor(35-fade*20);
+    ctx.fillStyle=`rgb(${bgR},${bgG},${bgB})`;ctx.fillRect(0,0,W,H);
+
+    // hospital bed
+    ctx.fillStyle='#3a3a4a';ctx.beginPath();ctx.roundRect(W/2-130,H*0.5,260,70,6);ctx.fill();
+    ctx.fillStyle='#4a4a5a';ctx.beginPath();ctx.roundRect(W/2-120,H*0.45,240,30,4);ctx.fill();
+    // pillow
+    ctx.fillStyle=`rgb(${Math.floor(200-fade*120)},${Math.floor(198-fade*120)},${Math.floor(210-fade*120)})`;
+    ctx.beginPath();ctx.roundRect(W/2-70,H*0.43,140,30,8);ctx.fill();
+
+    // person lying — body
+    const bAlpha=Math.max(0.1,1-fade*0.85);
+    ctx.globalAlpha=bAlpha;
+    // torso
+    ctx.fillStyle='#c8e0f0';
+    ctx.beginPath();ctx.roundRect(W/2-55,H*0.45,110,40,6);ctx.fill();
+    // arms at sides
+    ctx.beginPath();ctx.roundRect(W/2-75,H*0.47,22,30,5);ctx.fill();
+    ctx.beginPath();ctx.roundRect(W/2+53,H*0.47,22,30,5);ctx.fill();
+    // head
+    ctx.fillStyle=`rgb(${Math.floor(225-fade*60)},${Math.floor(185-fade*50)},${Math.floor(145-fade*40)})`;
+    ctx.beginPath();ctx.arc(W/2,H*0.42,24,0,Math.PI*2);ctx.fill();
+    // closed eyes — weakening
+    ctx.strokeStyle='rgba(60,30,10,0.7)';ctx.lineWidth=2;ctx.lineCap='round';
+    ctx.beginPath();ctx.moveTo(W/2-12,H*0.42);ctx.lineTo(W/2-4,H*0.42);ctx.stroke();
+    ctx.beginPath();ctx.moveTo(W/2+4,H*0.42);ctx.lineTo(W/2+12,H*0.42);ctx.stroke();
+    ctx.globalAlpha=1;
+
+    // IV bag
+    ctx.fillStyle='rgba(180,220,255,0.7)';
+    ctx.beginPath();ctx.roundRect(W-80,50,35,60,6);ctx.fill();
+    ctx.strokeStyle='#8ab';ctx.lineWidth=2;
+    ctx.beginPath();ctx.moveTo(W-62,110);ctx.bezierCurveTo(W-62,140,W/2+74,H*0.48,W/2+64,H*0.48);ctx.stroke();
+
+    // EKG monitor (flatlines as t grows)
+    const monX=50,monY=50,monW=160,monH=80;
+    ctx.fillStyle='#111';ctx.beginPath();ctx.roundRect(monX,monY,monW,monH,6);ctx.fill();
+    ctx.strokeStyle='rgba(0,255,80,0.8)';ctx.lineWidth=2;
+    ctx.beginPath();
+    const pts=80;
+    for(let i=0;i<=pts;i++){
+      const x=monX+10+i*(monW-20)/pts;
+      let y=monY+monH/2;
+      if(fade<0.7){
+        // heartbeat
+        const phase=(i/pts)*4+t*0.05;
+        const beat=Math.sin(phase*Math.PI*2)*18*(1-fade/0.7);
+        if(Math.abs(Math.sin(phase*Math.PI))>0.85)y+=beat*2.5;
+        else y+=beat*0.3;
+      }
+      // flatline as fades
+      i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);
+    }
+    ctx.stroke();
+    // monitor text
+    ctx.fillStyle='rgba(0,255,80,0.6)';ctx.font='10px IBM Plex Mono, monospace';ctx.textAlign='left';
+    ctx.fillText(fade>0.8?'  ──  0 BPM':`BPM: ${Math.floor(72-fade*72)}`,monX+8,monY+monH-8);
+
+    // price tag on medicine bottle (untouched)
+    ctx.fillStyle='#cc6622';
+    ctx.beginPath();ctx.roundRect(W/2-160,H*0.6,55,35,4);ctx.fill();
+    ctx.fillStyle='white';ctx.font='bold 10px IBM Plex Mono, monospace';ctx.textAlign='center';
+    ctx.fillText('$180,000',W/2-132,H*0.6+14);
+    ctx.font='8px sans-serif';ctx.fillText('per course',W/2-132,H*0.6+26);
+    // X across it
+    ctx.strokeStyle='rgba(200,30,30,0.8)';ctx.lineWidth=3;
+    ctx.beginPath();ctx.moveTo(W/2-155,H*0.62);ctx.lineTo(W/2-110,H*0.65);ctx.stroke();
+    ctx.beginPath();ctx.moveTo(W/2-110,H*0.62);ctx.lineTo(W/2-155,H*0.65);ctx.stroke();
+
+    // "NOT GUILTY" stamp
+    if(t>40){
+      const stampt=Math.min((t-40)/20,1);
+      ctx.save();ctx.translate(W/2+80,H*0.7);ctx.rotate(0.1);ctx.globalAlpha=stampt;
+      ctx.strokeStyle='#2255cc';ctx.lineWidth=3;ctx.strokeRect(-70,-20,140,40);
+      ctx.fillStyle='#2255cc';ctx.font='bold 22px IBM Plex Mono, monospace';ctx.textAlign='center';
+      ctx.fillText('NOT GUILTY',0,9);
+      ctx.globalAlpha=1;ctx.restore();
+    }
+
+    // darkening overlay
+    if(fade>0.5){
+      ctx.fillStyle=`rgba(0,0,0,${(fade-0.5)*1.4})`;ctx.fillRect(0,0,W,H);
+    }
+
+    // final text
+    if(t>250){
+      const ta=Math.min((t-250)/30,1);
+      ctx.globalAlpha=ta;
+      ctx.fillStyle='#cc4444';ctx.font='bold 16px IBM Plex Mono, monospace';ctx.textAlign='center';
+      ctx.fillText('PREVENTABLE DEATH',W/2,H-50);
+      ctx.fillStyle='#886666';ctx.font='12px IBM Plex Sans, sans-serif';
+      ctx.fillText('The drug was available. The price was not.',W/2,H-28);
+      ctx.globalAlpha=1;
+    }
+
+    t++;
+    if(t<500)requestAnimationFrame(draw);
+  }
+  draw();
+}
+
+/* ── SCORES ─────────────────────────────────────────────────────── */
 async function goToScores(){
   show('s-scores');
   document.getElementById('score-grid-top').innerHTML='<div class="spinner" style="grid-column:span 2"><div class="spin-ring"></div>Evaluating all players...</div>';
   const scen=SCENARIOS.find(s=>s.id===game.scenario);
-  const argsText=game.players.map(p=>{const r=ROLES.find(r=>r.id===p.roleId);return `${r.title}: "${p.arg}"`;}).join('\n');
-  const prompt=`Evaluate these students in a nuclear crisis leadership simulation. Scenario: "${scen.title}". Verdict: ${game.verdict}.
+  const argsText=game.players.map(p=>{const r=activeRoles().find(r=>r.id===p.roleId);return `${r.title}: "${p.arg}"`;}).join('\n');
+  const prompt=`Evaluate these students in a crisis leadership simulation. Scenario: "${scen.title}". Verdict: ${game.verdict}.
 
 Players and their arguments:
 ${argsText}
@@ -618,7 +1116,7 @@ Score each player on four dimensions (each 0-25):
 - Role accuracy: Did they actually argue from their role's perspective?
 - Persuasiveness: Was their case clear, grounded, and genuinely convincing?
 
-For the President, score on: Ethics, Emotional intelligence, Decision quality (did the decision engage with what advisors actually said?), and Leadership (did they show command presence and genuine weighing of options?).
+For the President/Chair, score on: Ethics, Emotional intelligence, Decision quality (did the decision engage with what advisors actually said?), and Leadership (did they show command presence and genuine weighing of options?).
 
 Also give an overall group score (0-100) for how well they collectively worked through a high-stakes decision together.
 
@@ -635,7 +1133,7 @@ Respond ONLY as JSON (no markdown):
     game.scores=JSON.parse(raw.replace(/```json|```/g,'').trim());
   }catch(e){
     game.scores={
-      players:game.players.map(p=>{const r=ROLES.find(r=>r.id===p.roleId);return{role:r.title,ethics:Math.floor(Math.random()*8)+15,eq:Math.floor(Math.random()*7)+15,roleAcc:Math.floor(Math.random()*8)+15,persuasion:Math.floor(Math.random()*7)+14,feedback:'Your argument reflected your role\'s perspective. To go deeper, try connecting your position more directly to the specific details of the scenario, and engage head-on with the strongest counterargument you knew was coming.'};}),
+      players:game.players.map(p=>{const r=activeRoles().find(r=>r.id===p.roleId);return{role:r.title,ethics:Math.floor(Math.random()*8)+15,eq:Math.floor(Math.random()*7)+15,roleAcc:Math.floor(Math.random()*8)+15,persuasion:Math.floor(Math.random()*7)+14,feedback:'Your argument reflected your role\'s perspective. To go deeper, try connecting your position more directly to the specific details of the scenario, and engage head-on with the strongest counterargument you knew was coming.'};}),
       groupScore:Math.floor(Math.random()*15)+68,
       groupNote:'The group brought a real range of perspectives. The most effective moments came when advisors engaged with what others had said, rather than presenting their case like it existed in a vacuum.'
     };
@@ -652,6 +1150,7 @@ function renderScores(){
   }).join('');
 }
 
+/* ── UTILS ─────────────────────────────────────────────────────── */
 function setPhasebar(id,done,total){
   const el=document.getElementById(id);if(!el)return;
   el.innerHTML='';
