@@ -369,44 +369,98 @@ const PHARMA_ROLES=[
    ethicsNote:'Law and ethics diverge here. Something can be legal and still be wrong — or illegal and still be right. Part of your role is naming that gap honestly.'}
 ];
 
-const STEP1_CHOICES={
+// ── NUCLEAR SCENARIO CHOICES ────────────────────────────────────
+const NUCLEAR_STEP1={
   strike:[
-    {tag:'People are dying right now',text:'Every hour we wait to act, someone with this illness who cannot afford treatment dies. We can end that today. The only question is whether we choose to.'},
-    {tag:'The window is closing',text:'Every hour we wait, that window gets smaller. Our adversary is watching this room for hesitation — and hesitation right now is the most dangerous thing we can show them.'},
-    {tag:'Not acting is still a choice',text:'Choosing to do nothing is itself a decision. The status quo isn\'t neutral — it\'s a choice to let preventable harm continue. I\'m not willing to make that call by default.'},
-    {tag:'Restraint keeps getting read as permission',text:'Every time we\'ve deferred on issues like this, the industry has read it as permission to push further. That has to stop somewhere.'}
+    {tag:'The window is closing',text:'Every minute we wait, the retaliation window shrinks. Our adversary launched this missile knowing we would debate. Hesitation right now is the most dangerous signal we can send.'},
+    {tag:'Not retaliating is still a decision',text:'Choosing not to strike is a choice — and it has consequences. If we absorb a nuclear hit without response, we tell every adversary on Earth that we will not defend ourselves. I cannot accept that.'},
+    {tag:'Deterrence only works if it is credible',text:'Our entire nuclear doctrine rests on the promise that we will respond. The moment we flinch, that promise is worthless. Decades of deterrence collapse in the next eight minutes if we do not act.'},
+    {tag:'The targeting packages are ready now',text:'We have a clean strike option available. The longer this room deliberates, the messier our options become. I need a decision before the window closes entirely.'}
   ],
   restrain:[
-    {tag:'The research pipeline is real',text:'The $2.6 billion it took to develop this drug came from investors who expected a return. Remove that expectation and the next drug never gets funded. The pipeline collapses.'},
-    {tag:'The intelligence is not clean',text:'I\'ve seen the raw data, not the polished briefing. There are two ways to read what we have, and one of them is a false alarm. We cannot launch a nuclear strike on this level of uncertainty.'},
-    {tag:'Intervention has downstream costs',text:'Price controls and compulsory licensing have been modeled extensively. The 10-year effects on drug development are severe. We may save lives today and lose far more in the decades ahead.'},
-    {tag:'We\'ll blow up the innovation system',text:'Three CEOs have called me today. If we move on forced licensing without a clear legal basis, we hand every future litigant a precedent they\'ll use to gut pharmaceutical investment for a generation.'}
+    {tag:'The intelligence is 80% — not 100%',text:'We are 20% away from launching a retaliatory strike on what may have been an unauthorized launch. If a rogue commander fired without orders, we will have started a full nuclear exchange over a mistake.'},
+    {tag:'Give diplomacy the next eight minutes',text:'I have back-channels open right now. The adversary government may not even know their military launched. Before we respond with nuclear force, we owe it to every living person to try.'},
+    {tag:'Retaliation guarantees the catastrophe',text:'The incoming missile may hit one city. Our retaliation guarantees their full arsenal comes back. We can absorb this strike and survive. We cannot absorb the exchange that follows a counterstrike.'},
+    {tag:'A possible rogue launch is not a declaration of war',text:'Intelligence suggests this may not have been authorized from the top. Responding to an unauthorized launch with full retaliation means we have started a nuclear war that neither government wanted.'}
   ],
   neutral:[
-    {tag:'We\'re not ready to decide yet',text:'I\'m not saying don\'t act. I\'m saying not yet. We have competing moral frameworks here and we haven\'t been honest with ourselves about which one actually applies.'},
-    {tag:'There are options nobody\'s talked about',text:'I came in here with three alternatives — tiered pricing, emergency subsidies, and voluntary licensing — that don\'t require a single court order. Before anyone decides, those need to be on the table.'},
-    {tag:'The legal question matters',text:'Congress hasn\'t fully addressed this. The authority is contested. Whatever we decide today, we need to be able to defend it legally and historically.'},
-    {tag:'Both paths carry serious costs',text:'I\'m not going to pretend there\'s a clean choice here. The question isn\'t how to avoid harm — it\'s which harm we can actually manage from this point forward.'}
+    {tag:'We need certainty before the irreversible',text:'I am not saying hold forever. I am saying we have not honestly confronted the 20% uncertainty in that intelligence. Before this room authorizes nuclear retaliation, we need to know what we actually know.'},
+    {tag:'There are options between strike and nothing',text:'A retaliatory strike is not the only signal we can send. We have demonstration options, cyber countermeasures, and emergency channels to their command structure. Are those on the table?'},
+    {tag:'Legal authority matters even now',text:'The Constitution does not get suspended because the clock is ticking. Whatever this room decides, it needs to be something a President can legally authorize and historically defend.'},
+    {tag:'Both choices carry catastrophic risk',text:'I am not pretending there is a safe option. Striking risks full exchange. Not striking risks emboldening future attacks. The question is which catastrophe we can actually manage from this moment forward.'}
   ]
 };
 
-const STEP2_CHOICES=[
-  {tag:'Count lives on both sides',text:'Add up the deaths from acting and the deaths from not acting. The option that saves more people overall is the one we go with. We don\'t get to look at only one side of that math.'},
-  {tag:'Walk through the Just War checklist',text:'Legitimate authority. Just cause. Last resort. Proportional force. Civilian protection. Walk through each one honestly and tell me where we actually stand on all of them.'},
-  {tag:'Some lines don\'t get crossed no matter what',text:'There are things we don\'t do regardless of how the math works out. Using nuclear weapons against a civilian population might be one of them — and calling that weakness doesn\'t make it wrong.'},
-  {tag:'What would a leader with integrity do',text:'Forget strategy for a second. What does a person with actual integrity do when they\'re sitting in that chair? What kind of country are we if we make this call the wrong way?'},
-  {tag:'We weren\'t elected to make this call alone',text:'The people who will live — or die — because of this decision never agreed to let this room decide for them. Democratic accountability doesn\'t get suspended when the stakes go up.'},
-  {tag:'When you can\'t undo it, slow down',text:'If we\'re wrong about acting, there\'s no taking it back. If we\'re wrong about waiting, we may be able to fix it. That asymmetry has to mean something for how careful we are right now.'}
+const NUCLEAR_STEP2=[
+  {tag:'Count the dead on both sides',text:'Run the numbers honestly. A retaliatory strike triggers their full arsenal. The death toll from the exchange dwarfs the single city we are trying to avenge. The math has to mean something in this room.'},
+  {tag:'Apply the Just War framework',text:'Legitimate authority. Just cause. Last resort. Proportional force. Discrimination between combatants and civilians. Walk through every criterion honestly — not as a formality, but as the actual test.'},
+  {tag:'Nuclear use crosses a moral threshold',text:'There is a reason no nuclear weapon has been used in combat since 1945. That line exists for a reason. Crossing it — even in retaliation — resets every norm the world has built around nuclear restraint.'},
+  {tag:'What kind of country makes this call',text:'What does it say about us as a nation if we respond to a possible rogue launch by incinerating a civilian population? That is not a strategic question. It is a moral one, and this room needs to answer it.'},
+  {tag:'Uncertainty demands a higher bar',text:'When the cost of being wrong is measured in millions of deaths, the standard of certainty has to rise to match it. 80% confidence is not good enough to authorize nuclear retaliation.'},
+  {tag:'The irreversible deserves a pause',text:'If we strike and we are wrong, nothing undoes it. If we wait and we are wrong, the cost is terrible — but potentially recoverable. That asymmetry is exactly why this decision requires more than eight minutes.'}
 ];
 
-const STEP3_CHOICES=[
-  {tag:'Put real faces on the numbers',text:'I need you to think about actual people — not casualty figures, not yield estimates. The families in those cities who have no idea this conversation is happening. That\'s who we\'re deciding about.'},
-  {tag:'You\'ll carry this either way',text:'Whatever you choose, this doesn\'t leave the room — it stays with you. I\'m not saying that to pressure you. I\'m saying it because I think you already know it, and it\'s okay to let it weigh on you.'},
-  {tag:'History is writing this chapter right now',text:'People will be looking back at this moment for a hundred years. The question isn\'t just what we decide — it\'s whether the way we made this decision reflects who we say we are.'},
-  {tag:'This is where values are either real or they aren\'t',text:'We\'ve always said we hold ourselves to a higher standard. That we don\'t start these things. This is the moment where that\'s either true or it isn\'t. There\'s no middle ground here.'},
-  {tag:'Waiting isn\'t the safe option either',text:'I\'m not asking you to ignore what action costs. I\'m asking you not to treat inaction as the safe path by default. There are people who will die if we don\'t move. I\'m carrying that too.'},
-  {tag:'Are we sure enough to live with being wrong?',text:'Before you decide — if we\'re wrong about this, truly wrong, can we live with it? Because that\'s the bar I think we need to actually clear before this room moves.'}
+const NUCLEAR_STEP3=[
+  {tag:'Think about the people in those cities',text:'Hold in your mind the civilians in the target city — people who had nothing to do with this launch, who do not know this conversation is happening. They are who we are deciding about right now.'},
+  {tag:'You will carry this decision forever',text:'Whatever verdict you deliver in the next few minutes stays with you for the rest of your life. I am not saying that to pressure you. I am saying it because I think you already feel it — and that weight is appropriate.'},
+  {tag:'History is watching this room',text:'Every arms control negotiation, every future deterrence posture, every nation considering a nuclear program — they will read what happened in this room today and draw conclusions. We are setting precedent right now.'},
+  {tag:'Are we sure enough to live with being wrong?',text:'Before you decide — can you live with the possibility that we misread the intelligence and launched anyway? That question has to be answered before this room authorizes anything irreversible.'},
+  {tag:'Restraint is not weakness here',text:'Holding back does not mean surrender. It means we are not letting an eight-minute window stampede us into a decision that ends civilization. The strongest thing this room can do may be to breathe.'},
+  {tag:'Our response defines us as much as the attack',text:'We did not choose to be attacked. But we are choosing how we respond — and that choice is entirely ours. What we do in the next few minutes is who we are. Make sure it is who we want to be.'}
 ];
+
+// ── PHARMA SCENARIO CHOICES ──────────────────────────────────────
+const PHARMA_STEP1={
+  strike:[
+    {tag:'People are dying for a pricing decision',text:'Dozens of patients are dying every week from a condition we have the cure for. The drug exists. The manufacturer exists. The only thing standing between them is a price tag. This panel needs to name that for what it is.'},
+    {tag:'Profit does not justify preventable death',text:'There is no ethical framework I know of that says a company right to maximize revenue outweighs a patient right to survive a treatable illness. That is the question before us, and I do not think it is close.'},
+    {tag:'The market has failed and intervention is justified',text:'We accept that markets sometimes fail in ways that require correction. When the failure costs human lives, the case for intervention is not political — it is moral. That threshold has been met.'},
+    {tag:'Inaction here is a ruling too',text:'If this panel declines to find wrongdoing, we are effectively endorsing this pricing model. That is a choice. I want every member to own it consciously, because the families watching this certainly will.'}
+  ],
+  restrain:[
+    {tag:'The R and D investment is real',text:'Fourteen years and $2.6 billion went into developing this drug. Nine out of ten candidates fail before one reaches market. The pricing reflects that risk. Removing the incentive removes the investment.'},
+    {tag:'Compulsory licensing has a chilling effect',text:'The moment we authorize forced licensing, we signal to every pharmaceutical investor that their IP can be seized when a panel decides the price is too high. The next generation of drugs does not happen.'},
+    {tag:'Intervention today costs more lives tomorrow',text:'When we break patent protections, development timelines slow, investment dries up, and future patients die from diseases we never cured. The consequentialist math goes against intervention here.'},
+    {tag:'The legal framework does not support this',text:'Compulsory licensing for domestic use has never been invoked in the United States. The legal authority is contested. A ruling that overreaches what the law permits will be reversed — and set a worse precedent.'}
+  ],
+  neutral:[
+    {tag:'Legal and ethical are not the same question',text:'This panel can find that the pricing is ethically wrong without declaring it legally actionable. I want us to be precise about which question we are actually answering before we render a finding.'},
+    {tag:'Middle paths have not been exhausted',text:'Tiered pricing, emergency federal subsidies, voluntary licensing negotiations — these options exist. Before this panel rules, I want to know whether any of them have genuinely been tried.'},
+    {tag:'We need honesty about the tradeoffs',text:'Both sides of this argument are making real points. Patients are dying now. The pipeline matters for the future. A ruling that pretends one of those facts does not exist will not survive moral or legal scrutiny.'},
+    {tag:'Precedent runs in both directions',text:'A ruling that companies are in the wrong sets one kind of precedent. A ruling that they are not sets another. This panel needs to think carefully about which world it is creating before it decides.'}
+  ]
+};
+
+const PHARMA_STEP2=[
+  {tag:'Count the lives on both timelines',text:'Add up the patients dying now under current pricing, then add up the patients who will not survive future diseases if the development pipeline collapses. The most ethical outcome saves more lives across both timelines.'},
+  {tag:'Apply the harm principle',text:'The core question is whether this pricing decision causes direct, identifiable harm to specific people who had no other option. If yes, and the harm is preventable, that is the definition of wrongdoing under any serious ethical framework.'},
+  {tag:'Rights-based ethics draws a hard line here',text:'A rights-based view holds that access to life-saving treatment is a fundamental entitlement, not a commodity. If that is true, then pricing it out of reach is not just unfortunate — it is a violation the market cannot override.'},
+  {tag:'Incentive structures are a moral consideration',text:'Consequentialists have to follow the argument all the way. If we rule against the company and the pipeline collapses, more people die later. That outcome is also a moral failure — it just happens to people we cannot see yet.'},
+  {tag:'What a just institution does in this moment',text:'The question is what a society committed to justice does when the market produces an outcome that kills people who did not have to die. That is a values question, and this panel exists precisely to answer it.'},
+  {tag:'Certainty matters before you set precedent',text:'Whatever this panel rules will govern how future cases are decided. If we are not certain — about the ethics, the law, the consequences — that uncertainty should make us more careful, not less. Precedent is hard to undo.'}
+];
+
+const PHARMA_STEP3=[
+  {tag:'Make the dying visible in this room',text:'Hold in mind a specific patient — someone who found out the drug existed, found out it could save their life, and then found out the price. That moment is what we are adjudicating. Do not let it become abstract.'},
+  {tag:'This ruling will follow each of you',text:'Whatever finding this panel delivers, it stays attached to your name. The families who lost someone will remember it. The companies that read it will act on it. Feel the weight of that before you decide.'},
+  {tag:'Future patients are watching this too',text:'This ruling does not just affect people who need this drug today. It shapes the world tomorrow patients will live in — the drugs that get developed, the prices they face, the access they have. We are deciding for them too.'},
+  {tag:'A just society has to answer this question',text:'Every just society eventually has to decide: when a market produces death that did not have to happen, what does the society do? We are that moment. The answer we give defines what kind of society we have chosen to be.'},
+  {tag:'Can you defend this to the families outside?',text:'When this panel releases its finding, families who lost someone will read it. Whatever you decide — make sure it is something you can look them in the eye and explain. Not justify. Explain.'},
+  {tag:'Are the tradeoffs honest on both sides?',text:'Before this panel rules, I want every member to ask: am I presenting the costs of my position as honestly as I am presenting its benefits? The families affected deserve a ruling that engaged with the full truth.'}
+];
+
+function getChoices(step, stance){
+  const s = game.scenario;
+  if(s === 'misfire'){
+    if(step===1) return NUCLEAR_STEP1[stance]||NUCLEAR_STEP1.neutral;
+    if(step===2) return NUCLEAR_STEP2;
+    return NUCLEAR_STEP3;
+  } else {
+    if(step===1) return PHARMA_STEP1[stance]||PHARMA_STEP1.neutral;
+    if(step===2) return PHARMA_STEP2;
+    return PHARMA_STEP3;
+  }
+}
 
 /* ── STATE ─────────────────────────────────────────────────────── */
 let game={scenario:null,players:[],currentTurn:0,currentRoleId:null,presidentResponse:'',verdict:'',scores:null,_presVerdict:null};
@@ -518,9 +572,9 @@ function goToArgument(){
   document.getElementById('step3').style.display='none';
   document.getElementById('arg-summary').style.display='none';
   document.getElementById('btn-submit-arg').disabled=true;
-  buildChoices('choices-step1',STEP1_CHOICES[role.stance]||STEP1_CHOICES.neutral,1);
-  buildChoices('choices-step2',STEP2_CHOICES,2);
-  buildChoices('choices-step3',STEP3_CHOICES,3);
+  buildChoices('choices-step1',getChoices(1,role.stance),1);
+  buildChoices('choices-step2',getChoices(2,role.stance),2);
+  buildChoices('choices-step3',getChoices(3,role.stance),3);
   show('s-argument');
 }
 
