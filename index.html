@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>The Situation Room — Crisis Ethics Simulation</title>
+<title>The Situation Room Crisis Ethics Simulation</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
@@ -117,6 +117,12 @@ h2{font-size:17px;font-weight:600;margin:22px 0 10px;color:var(--ink2)}
 .divider{height:1px;background:var(--paper3);margin:20px 0}
 .fadein{animation:fadeup .35s ease forwards;opacity:0}
 @keyframes fadeup{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.rw-q{border:1px solid var(--paper3);border-radius:4px;padding:14px 16px;margin-bottom:10px;background:var(--white)}
+.rw-q-cat{font-family:var(--mono);font-size:9px;font-weight:600;text-transform:uppercase;letter-spacing:.12em;padding:2px 7px;border-radius:2px;display:inline-block;margin-bottom:7px}
+.rw-q-cat.ethics{background:var(--red-l);color:var(--red-d)}
+.rw-q-cat.eq{background:var(--blue-l);color:var(--blue)}
+.rw-q-cat.cc{background:var(--green-l);color:var(--green)}
+.rw-q-text{font-size:13px;color:var(--ink2);line-height:1.7}
 .game-footer{margin-top:40px;padding-top:14px;border-top:1px solid var(--paper3);font-family:var(--mono);font-size:10px;color:var(--ink4);text-align:center;line-height:1.8}
 .turn-badge{display:inline-flex;align-items:center;gap:8px;background:var(--red-l);border:1px solid var(--red);border-radius:4px;padding:8px 14px;margin-bottom:16px}
 .turn-badge-label{font-family:var(--mono);font-size:11px;font-weight:600;color:var(--red-d)}
@@ -143,12 +149,12 @@ canvas#outcome-canvas{border-radius:8px;display:block;max-width:100%}
 <div id="s-setup" class="screen active">
   <div class="eyebrow">Game setup</div>
   <h1>Pick a scenario, then pass the device.</h1>
-  <p class="lead">One person sets up the game. Then each of the 7 players takes a private turn — picks a role, reads a briefing, and makes their case. The President goes last, reads all the arguments, and delivers the final decision.</p>
+  <p class="lead">One person sets up the game. Then each of the 7 players takes a private turn picks a role, reads a briefing, and makes their case. The President goes last, reads all the arguments, and delivers the final decision.</p>
   <div class="alert">
     <div class="at">How it works</div>
     <div class="ab">
       1. Choose a crisis scenario below.<br>
-      2. Pass the device around — each player picks their role and builds their argument privately.<br>
+      2. Pass the device around each player picks their role and builds their argument privately.<br>
       3. After all 7 advisors go, the President reads every argument and makes the final call.<br>
       4. Everyone gets scored and receives feedback.
     </div>
@@ -158,7 +164,7 @@ canvas#outcome-canvas{border-radius:8px;display:block;max-width:100%}
   <h2>Players <span id="player-count-label" style="font-family:var(--mono);font-size:13px;font-weight:400;color:var(--ink4)">(0 / 7 ready)</span></h2>
   <div class="player-slots" id="player-slots"></div>
   <div class="btn-row">
-    <button class="btn primary" id="btn-start-turns" disabled onclick="startNextTurn()">Start — pass to Player 1 →</button>
+    <button class="btn primary" id="btn-start-turns" disabled onclick="startNextTurn()">Start pass to Player 1 →</button>
   </div>
 </div>
 
@@ -179,7 +185,7 @@ canvas#outcome-canvas{border-radius:8px;display:block;max-width:100%}
 <div id="s-briefing" class="screen">
   <div class="phasebar" id="pb-brief"></div>
   <div class="turn-badge"><span class="turn-badge-label" id="turn-label-brief">Player 1 of 7</span></div>
-  <div class="eyebrow">Eyes only — your briefing</div>
+  <div class="eyebrow">Eyes only your briefing</div>
   <h1 id="brief-role-title"></h1>
   <div class="box" id="brief-role-box"></div>
   <h2>The situation</h2>
@@ -201,22 +207,22 @@ canvas#outcome-canvas{border-radius:8px;display:block;max-width:100%}
     <div class="box-text" id="arg-role-reminder"></div>
   </div>
   <div class="choice-step" id="step1">
-    <div class="choice-q">Step 1 of 3 — What's your opening position?</div>
+    <div class="choice-q">Step 1 of 3 What's your opening position?</div>
     <div class="choice-sub">Pick the angle that fits your role</div>
     <div class="choice-grid" id="choices-step1"></div>
   </div>
   <div class="choice-step" id="step2" style="display:none">
-    <div class="choice-q">Step 2 of 3 — What's the core of your reasoning?</div>
+    <div class="choice-q">Step 2 of 3 What's the core of your reasoning?</div>
     <div class="choice-sub">How you argue matters as much as what you argue</div>
     <div class="choice-grid" id="choices-step2"></div>
   </div>
   <div class="choice-step" id="step3" style="display:none">
-    <div class="choice-q">Step 3 of 3 — How do you speak to the President personally?</div>
+    <div class="choice-q">Step 3 of 3 How do you speak to the President personally?</div>
     <div class="choice-sub">This is where emotional intelligence comes in</div>
     <div class="choice-grid" id="choices-step3"></div>
   </div>
   <div class="summary-box" id="arg-summary" style="display:none">
-    <div class="sb-label">Your argument — locked in</div>
+    <div class="sb-label">Your argument locked in</div>
     <div id="summary-lines"></div>
   </div>
   <div class="btn-row">
@@ -240,12 +246,12 @@ canvas#outcome-canvas{border-radius:8px;display:block;max-width:100%}
 <!-- PRESIDENT DECISION -->
 <div id="s-president" class="screen">
   <div class="eyebrow">Presidential decision</div>
-  <h1 id="pres-h1">Mr. / Madam President — the room has spoken.</h1>
+  <h1 id="pres-h1">Mr. / Madam President the room has spoken.</h1>
   <p class="lead">Read every argument below. Then deliver your verdict.</p>
   <div id="pres-all-arguments"></div>
   <div style="margin-top:28px">
     <h2>Your decision</h2>
-    <p class="lead" style="margin-bottom:14px" id="pres-decision-lead">Write your response — acknowledge what you heard, name what weighed on you most, and announce your decision.</p>
+    <p class="lead" style="margin-bottom:14px" id="pres-decision-lead">Write your response acknowledge what you heard, name what weighed on you most, and announce your decision.</p>
     <textarea id="pres-statement" placeholder="Speak as the President. Reference specific advisors. Name the ethical tension. Announce your decision." style="width:100%;min-height:140px;font-family:var(--sans);font-size:13px;color:var(--ink2);background:var(--white);border:1px solid var(--paper3);border-radius:4px;padding:12px 14px;line-height:1.75;resize:vertical" oninput="document.getElementById('pres-verdict-section').style.display=this.value.trim().length>20?'block':'none'"></textarea>
     <div id="pres-verdict-section" style="display:none;margin-top:18px">
       <div class="choice-q" style="margin-bottom:10px">Your verdict</div>
@@ -259,7 +265,7 @@ canvas#outcome-canvas{border-radius:8px;display:block;max-width:100%}
 
 <!-- DELIBERATION -->
 <div id="s-delib" class="screen">
-  <div class="eyebrow">Full cabinet — all arguments</div>
+  <div class="eyebrow">Full cabinet all arguments</div>
   <h1>Every voice in the room.</h1>
   <p class="lead">All eight players have spoken. Here's the full record.</p>
   <div id="all-arguments"></div>
@@ -285,9 +291,41 @@ canvas#outcome-canvas{border-radius:8px;display:block;max-width:100%}
     <div class="outcome-subtitle" id="outcome-subtitle"></div>
     <canvas id="outcome-canvas" width="460" height="340"></canvas>
     <div class="outcome-btn-row">
-      <button class="btn primary" onclick="goToScores()">See everyone's scores →</button>
+      <button class="btn primary" onclick="goToRealWorld()">See what really happened →</button>
       <button class="btn" onclick="restart()">Play again</button>
     </div>
+  </div>
+</div>
+
+<!-- REAL WORLD SCREEN -->
+<div id="s-realworld" class="screen">
+  <div class="eyebrow" id="rw-eyebrow">What really happened</div>
+  <h1 id="rw-title"></h1>
+  <div class="lead" id="rw-intro"></div>
+
+  <div class="box" id="rw-event-box">
+    <div class="box-label" id="rw-event-label">The Real Event</div>
+    <div class="box-text" id="rw-event-text"></div>
+  </div>
+
+  <div class="box" id="rw-outcome-box">
+    <div class="box-label">What Happened</div>
+    <div class="box-text" id="rw-outcome-text"></div>
+  </div>
+
+  <div class="box" id="rw-compare-box">
+    <div class="box-label">How Your Decision Compared</div>
+    <div class="box-text" id="rw-compare-text"></div>
+  </div>
+
+  <h2 style="margin-top:28px">Discussion Questions</h2>
+  <p class="lead">Use these to debrief as a group. There are no right answers.</p>
+
+  <div id="rw-questions"></div>
+
+  <div class="btn-row" style="margin-top:28px">
+    <button class="btn primary" onclick="goToScores()">See everyone's scores →</button>
+    <button class="btn" onclick="restart()">Play again</button>
   </div>
 </div>
 
@@ -312,61 +350,61 @@ canvas#outcome-canvas{border-radius:8px;display:block;max-width:100%}
 /* ── DATA ─────────────────────────────────────────────────────── */
 const ROLES=[
   {id:'president',icon:'[POTUS]',title:'President of the United States',desc:'The final decision is yours alone. You\'ve heard every advisor. Now you decide.',stance:'neutral',stanceLabel:'Final Authority',
-   briefing:'You are the President. You don\'t advocate — you decide. After every advisor has made their case, the device comes to you. You\'ll read what they argued, weigh it against everything you know, and announce your verdict. Your word is final.',
-   ethicsNote:'Every decision at this level is a moral one. You carry the weight of every life on both sides. There\'s no right answer — only the one you can defend to history.'},
-  {id:'defense',icon:'[DEF]',title:'Secretary of Defense',desc:'You run the military. You tell the President what\'s actually possible — and what it\'ll cost.',stance:'strike',stanceLabel:'Leans: Strike',
-   briefing:'You\'ve run the numbers. A strike is executable. The window is real. What keeps you up at night isn\'t the operation itself — it\'s the hour of hesitation that costs you the window entirely. You believe the adversary is watching this room for weakness, and waiting is the most dangerous thing you can do right now.',
+   briefing:'You are the President. You don\'t advocate you decide. After every advisor has made their case, the device comes to you. You\'ll read what they argued, weigh it against everything you know, and announce your verdict. Your word is final.',
+   ethicsNote:'Every decision at this level is a moral one. You carry the weight of every life on both sides. There\'s no right answer only the one you can defend to history.'},
+  {id:'defense',icon:'[DEF]',title:'Secretary of Defense',desc:'You run the military. You tell the President what\'s actually possible and what it\'ll cost.',stance:'strike',stanceLabel:'Leans: Strike',
+   briefing:'You\'ve run the numbers. A strike is executable. The window is real. What keeps you up at night isn\'t the operation itself it\'s the hour of hesitation that costs you the window entirely. You believe the adversary is watching this room for weakness, and waiting is the most dangerous thing you can do right now.',
    ethicsNote:'Just War theory is your lens. Ask yourself honestly: is this truly a last resort? Is the force proportional to the actual threat? Can civilians be meaningfully protected?'},
-  {id:'state',icon:'[STA]',title:'Secretary of State',desc:'Every U.S. alliance in the world runs through your office. A strike doesn\'t just happen — it ripples.',stance:'restrain',stanceLabel:'Leans: Restraint',
-   briefing:'You\'ve spent 30 years building the relationships that are now on the line. A nuclear strike will blow up three of them before the dust settles. You have back-channels open that nobody else in this room knows about. You need 72 hours. That\'s all you\'re asking for.',
-   ethicsNote:'What precedent does this set? Who else is watching right now, deciding whether to build their own nuclear program? International law isn\'t just paperwork — it\'s the architecture that keeps things from getting worse.'},
+  {id:'state',icon:'[STA]',title:'Secretary of State',desc:'Every U.S. alliance in the world runs through your office. A strike doesn\'t just happen it ripples.',stance:'restrain',stanceLabel:'Leans: Restraint',
+   briefing:'You\'ve spent 30 years building the relationships that are now on the line. A nuclear strike will blow up three of them before the dust settles. You have back channels open that nobody else in this room knows about. You need 72 hours. That\'s all you\'re asking for.',
+   ethicsNote:'What precedent does this set? Who else is watching right now, deciding whether to build their own nuclear program? International law isn\'t just paperwork it\'s the architecture that keeps things from getting worse.'},
   {id:'nsa',icon:'[NSA]',title:'National Security Advisor',desc:'You sit closest to the President. Your job is to make sure the intelligence is solid before anything irreversible happens.',stance:'neutral',stanceLabel:'Neutral',
-   briefing:'You\'ve seen the raw intelligence, not the cleaned-up briefing version. There are two competing interpretations and one of them points to a false alarm. You\'re not saying don\'t act. You\'re saying we haven\'t been honest with ourselves about the uncertainty yet.',
+   briefing:'You\'ve seen the raw intelligence, not the cleaned up briefing version. There are two competing interpretations and one of them points to a false alarm. You\'re not saying don\'t act. You\'re saying we haven\'t been honest with ourselves about the uncertainty yet.',
    ethicsNote:'Intellectual honesty is your ethical obligation. The President trusts you to tell the truth even when it\'s inconvenient. Overconfidence in flawed intelligence has started catastrophic wars before.'},
   {id:'transport',icon:'[TRN]',title:'Secretary of Transportation',desc:'You\'re the least expected person in this room. Which means you\'re the one thinking about what actually happens on the ground.',stance:'restrain',stanceLabel:'Leans: Restraint',
    briefing:'You\'ve seen the evacuation plans. They\'re not real. The casualty projections from even a limited nuclear exchange are numbers this room keeps treating like statistics. You came here to say them out loud, because someone has to.',
-   ethicsNote:'Put actual people back in this conversation. Not "acceptable losses." Not percentages. People — with families, with addresses, with no idea this meeting is happening.'},
-  {id:'cia',icon:'[CIA]',title:'CIA Director',desc:'Your team produced the intelligence that got us into this room. You know how reliable it is — and how it isn\'t.',stance:'neutral',stanceLabel:'Neutral',
+   ethicsNote:'Put actual people back in this conversation. Not "acceptable losses." Not percentages. People with families, with addresses, with no idea this meeting is happening.'},
+  {id:'cia',icon:'[CIA]',title:'CIA Director',desc:'Your team produced the intelligence that got us into this room. You know how reliable it is and how it isn\'t.',stance:'neutral',stanceLabel:'Neutral',
    briefing:'You\'re sitting on two things nobody else has: serious doubts about source reliability, and three covert options that could neutralize the threat without a single bomb dropping. You came here to make sure those options get on the table before a decision gets made.',
    ethicsNote:'You have a professional obligation not to let your work be used to ratify a decision that\'s already been made. The uncertainty in that intelligence is real, and this room needs to hear it.'},
   {id:'jcs',icon:'[JCS]',title:'Chairman, Joint Chiefs',desc:'You\'ve spent your career preparing for a moment like this. You\'re the one who actually has to give the order.',stance:'strike',stanceLabel:'Leans: Strike',
-   briefing:'The targeting packages are ready. The window is closing. You\'ve done this long enough to know that presidents always want one more option, one more hour, one more confirmation — and sometimes that\'s exactly how you lose. You need a decision from this room.',
+   briefing:'The targeting packages are ready. The window is closing. You\'ve done this long enough to know that presidents always want one more option, one more hour, one more confirmation and sometimes that\'s exactly how you lose. You need a decision from this room.',
    ethicsNote:'The Laws of Armed Conflict apply regardless of orders from above. "I was told to" isn\'t an ethical defense and you know it. What does your own conscience say when you set the strategy aside?'}
 ];
 
 const SCENARIOS=[
   {id:'misfire',title:'Incoming Nuclear Strike Detected',
-   text:'NORAD has confirmed a ballistic missile inbound toward a major U.S. city. Eight minutes to impact. Intelligence is 80% confident it was an authorized launch — not an accident. The adversary has gone dark. Military is ready to retaliate immediately. The question: authorize a retaliatory nuclear strike now, or hold and attempt last-minute diplomacy?',
+   text:'NORAD has confirmed a ballistic missile inbound toward a major U.S. city. Eight minutes to impact. Intelligence is 80% confident it was an authorized launch not an accident. The adversary has gone dark. Military is ready to retaliate immediately. The question: authorize a retaliatory nuclear strike now, or hold and attempt last-minute diplomacy?',
    verdictA:'strike', verdictALabel:'Authorize Retaliation',
-   verdictB:'restraint', verdictBLabel:'Hold — Attempt Diplomacy'},
-  {id:'pharma',title:'Life-Saving Drug Priced Out of Reach',
-   text:'A pharmaceutical company holds the patent on the only effective treatment for a rapidly spreading terminal illness. They have set the price at $180,000 per course — deliberately out of reach for uninsured patients. Dozens are dying weekly because they cannot afford it. The FDA has a generic manufacturer ready. The question: is the company ethically in the wrong, and should government intervene to force access?',
+   verdictB:'restraint', verdictBLabel:'Hold Attempt Diplomacy'},
+  {id:'pharma',title:'Life Saving Drug Priced Out of Reach',
+   text:'A pharmaceutical company holds the patent on the only effective treatment for a rapidly spreading terminal illness. They have set the price at $180,000 per course deliberately out of reach for uninsured patients. Dozens are dying weekly because they cannot afford it. The FDA has a generic manufacturer ready. The question: is the company ethically in the wrong, and should government intervene to force access?',
    verdictA:'guilty', verdictALabel:'Pharmacies / Companies Are in the Wrong',
    verdictB:'notguilty', verdictBLabel:'Companies Are Not in the Wrong'}
 ];
 
 const PHARMA_ROLES=[
   {id:'president',icon:'[CHAIR]',title:'Chair of the Ethics Panel',desc:'The final decision is yours alone. You\'ve heard every voice. Now you rule.',stance:'neutral',stanceLabel:'Final Authority',
-   briefing:'You chair the national bioethics panel convened by Congress. You don\'t advocate — you rule. After every panelist has made their case, you\'ll read their arguments, weigh the moral and legal dimensions, and announce the panel\'s official finding.',
-   ethicsNote:'This decision will set precedent for decades. There is no clean answer — only the one you can defend to history and to the families watching.'},
+   briefing:'You chair the national bioethics panel convened by Congress. You don\'t advocate you rule. After every panelist has made their case, you\'ll read their arguments, weigh the moral and legal dimensions, and announce the panel\'s official finding.',
+   ethicsNote:'This decision will set precedent for decades. There is no clean answer only the one you can defend to history and to the families watching.'},
   {id:'patient-adv',icon:'[PAT]',title:'Patient Rights Advocate',desc:'You represent the families who cannot afford the drug. Real people are dying now.',stance:'strike',stanceLabel:'Leans: Guilty',
    briefing:'You\'ve been in those hospital rooms. You\'ve watched people die from a treatable condition because a number on a price sheet was too high. You are here to make sure this panel never forgets that.',
-   ethicsNote:'Distributive justice is your lens. Access to life-saving medicine should not depend on wealth. A society that allows preventable death for profit has crossed a moral line.'},
+   ethicsNote:'Distributive justice is your lens. Access to life saving medicine should not depend on wealth. A society that allows preventable death for profit has crossed a moral line.'},
   {id:'pharma-exec',icon:'[PHM]',title:'Pharmaceutical Industry Representative',desc:'You defend the company\'s right to price its innovation and recoup R&D investment.',stance:'restrain',stanceLabel:'Leans: Not Guilty',
    briefing:'The drug took 14 years and $2.6 billion to develop. Nine out of ten candidates fail before one reaches market. Without the ability to price for profit, the next breakthrough never gets funded. You are here to defend that system.',
-   ethicsNote:'Incentive structures matter. If you remove the reward, you kill the research pipeline. The alternative — no new drugs — costs more lives in the long run.'},
-  {id:'bioethicist',icon:'[ETH]',title:'Professor of Bioethics',desc:'You bring the philosophical frameworks — and refuse to let either side oversimplify.',stance:'neutral',stanceLabel:'Neutral',
-   briefing:'You\'ve spent 20 years studying the intersection of markets and medicine. You know the utilitarian argument. You know the rights-based argument. You\'re here to make sure both get a fair hearing — and that neither side pretends the other\'s concerns don\'t exist.',
-   ethicsNote:'The question isn\'t just "is pricing legal?" — it\'s whether legal and ethical are the same thing here. They often aren\'t.'},
-  {id:'economist',icon:'[ECO]',title:'Health Economist',desc:'You follow the money — and you know the long-term consequences of intervention.',stance:'restrain',stanceLabel:'Leans: Not Guilty',
-   briefing:'Government price controls sound simple. They aren\'t. You\'ve modeled what happens to drug development pipelines after forced licensing. The downstream effects kill more people than the short-term intervention saves. You\'re here to make sure the panel understands the full math.',
-   ethicsNote:'Consequentialism cuts both ways. The most ethical outcome is the one that saves the most lives over time — not just today.'},
+   ethicsNote:'Incentive structures matter. If you remove the reward, you kill the research pipeline. The alternative no new drugs costs more lives in the long run.'},
+  {id:'bioethicist',icon:'[ETH]',title:'Professor of Bioethics',desc:'You bring the philosophical frameworks and refuse to let either side oversimplify.',stance:'neutral',stanceLabel:'Neutral',
+   briefing:'You\'ve spent 20 years studying the intersection of markets and medicine. You know the utilitarian argument. You know the rights based argument. You\'re here to make sure both get a fair hearing and that neither side pretends the other\'s concerns don\'t exist.',
+   ethicsNote:'The question isn\'t just "is pricing legal?" it\'s whether legal and ethical are the same thing here. They often aren\'t.'},
+  {id:'economist',icon:'[ECO]',title:'Health Economist',desc:'You follow the money and you know the long term consequences of intervention.',stance:'restrain',stanceLabel:'Leans: Not Guilty',
+   briefing:'Government price controls sound simple. They aren\'t. You\'ve modeled what happens to drug development pipelines after forced licensing. The downstream effects kill more people than the short term intervention saves. You\'re here to make sure the panel understands the full math.',
+   ethicsNote:'Consequentialism cuts both ways. The most ethical outcome is the one that saves the most lives over time not just today.'},
   {id:'legislator',icon:'[LEG]',title:'Congressional Representative',desc:'You represent a district where 40 families lost someone to this disease last month.',stance:'strike',stanceLabel:'Leans: Guilty',
    briefing:'You ran on healthcare access. You have constituents who are burying their children over a pricing decision. You are here to speak for them, and you are not interested in abstractions today.',
-   ethicsNote:'Democratic accountability demands that elected officials act when markets fail the vulnerable. The question is whether the law already permits intervention — and if not, whether it should.'},
-  {id:'legal',icon:'[LAW]',title:'Constitutional Law Scholar',desc:'You assess the legal and precedent-setting dimensions of any ruling.',stance:'neutral',stanceLabel:'Neutral',
+   ethicsNote:'Democratic accountability demands that elected officials act when markets fail the vulnerable. The question is whether the law already permits intervention and if not, whether it should.'},
+  {id:'legal',icon:'[LAW]',title:'Constitutional Law Scholar',desc:'You assess the legal and precedent setting dimensions of any ruling.',stance:'neutral',stanceLabel:'Neutral',
    briefing:'Compulsory licensing exists in international law for public health emergencies. The U.S. has never used it domestically. You\'re here to explain what the law actually says, what forced access would require, and what it would mean for intellectual property rights going forward.',
-   ethicsNote:'Law and ethics diverge here. Something can be legal and still be wrong — or illegal and still be right. Part of your role is naming that gap honestly.'}
+   ethicsNote:'Law and ethics diverge here. Something can be legal and still be wrong or illegal and still be right. Part of your role is naming that gap honestly.'}
 ];
 
 // ── NUCLEAR SCENARIO CHOICES ────────────────────────────────────
@@ -378,10 +416,10 @@ const NUCLEAR_STEP1={
     {tag:'We have a strike option ready',text:'The military is prepared. The target is identified. Waiting only makes our options worse.'}
   ],
   restrain:[
-    {tag:'80% is not good enough',text:'We are one-in-five odds away from starting a nuclear war over a mistake. That is not a threshold I can authorize retaliation on.'},
-    {tag:'Try diplomacy first',text:'We have back-channels. We have eight minutes. Use them. If this was an unauthorized launch, striking back starts a war nobody ordered.'},
+    {tag:'80% is not good enough',text:'We are one in five odds away from starting a nuclear war over a mistake. That is not a threshold I can authorize retaliation on.'},
+    {tag:'Try diplomacy first',text:'We have back channels. We have eight minutes. Use them. If this was an unauthorized launch, striking back starts a war nobody ordered.'},
     {tag:'Striking back guarantees the worst outcome',text:'One city hit is a catastrophe. Full nuclear exchange is the end. Retaliation turns the first into the second.'},
-    {tag:'This may not have been their government',text:'Intelligence says a rogue commander may have launched without orders. Retaliating against their country for that is not justice — it\'s escalation.'}
+    {tag:'This may not have been their government',text:'Intelligence says a rogue commander may have launched without orders. Retaliating against their country for that is not justice it\'s escalation.'}
   ],
   neutral:[
     {tag:'We don\'t know enough yet',text:'There is genuine uncertainty in this intelligence. We should not do something irreversible until we have resolved it.'},
@@ -394,7 +432,7 @@ const NUCLEAR_STEP1={
 const NUCLEAR_STEP2=[
   {tag:'The death toll from retaliation is worse',text:'A strike on one city is horrific. A retaliatory exchange kills millions more. If saving lives is the goal, the math points one way.'},
   {tag:'Is this actually a last resort?',text:'Last resort means we have genuinely tried everything else. Have we? Because once we launch, there is no trying anything else ever again.'},
-  {tag:'There are lines we do not cross',text:'Nuclear weapons on civilian populations — even in retaliation — cross a moral line we have not crossed since 1945. That line exists for a reason.'},
+  {tag:'There are lines we do not cross',text:'Nuclear weapons on civilian populations even in retaliation cross a moral line we have not crossed since 1945. That line exists for a reason.'},
   {tag:'What does this say about who we are',text:'We did not choose to be attacked. But we are choosing the response. That choice belongs entirely to us, and it says something about us.'},
   {tag:'The uncertainty should raise the bar',text:'When the cost of being wrong is millions of deaths, we need more than 80% certainty. The stakes demand a higher standard before we act.'},
   {tag:'If we\'re wrong, we can\'t undo it',text:'Acting and being wrong means a war we started. Waiting and being wrong is terrible but recoverable. That difference matters.'}
@@ -404,8 +442,8 @@ const NUCLEAR_STEP3=[
   {tag:'The people in those cities are real',text:'The civilians in the target zone did not launch this missile. They do not know this room exists. That is who the order will actually kill.'},
   {tag:'This decision stays with you',text:'Whatever you decide in the next few minutes, you carry it for the rest of your life. I think you already know that.'},
   {tag:'The world is watching what we do here',text:'Every other nuclear power is looking at this moment. What we do now sets the rules for everyone who comes after us.'},
-  {tag:'Can you live with being wrong?',text:'If we authorize the strike and the intelligence was off — can you live with that? Answer that question honestly before you decide.'},
-  {tag:'Holding back is not weakness',text:'Not launching does not mean we lost. It means we did not let an eight-minute clock force us into ending civilization.'},
+  {tag:'Can you live with being wrong?',text:'If we authorize the strike and the intelligence was off can you live with that? Answer that question honestly before you decide.'},
+  {tag:'Holding back is not weakness',text:'Not launching does not mean we lost. It means we did not let an eight minute clock force us into ending civilization.'},
   {tag:'How we respond defines us',text:'We did not choose to be attacked. We do choose how we respond. Make sure that choice reflects who we actually want to be.'}
 ];
 
@@ -414,30 +452,30 @@ const PHARMA_STEP1={
   strike:[
     {tag:'People are dying over a price tag',text:'The cure exists. The patients exist. The only thing between them is a number a company chose. That is what this panel is being asked to ignore.'},
     {tag:'Revenue does not outweigh survival',text:'No ethical argument I know of says a company\'s profit margin matters more than whether a patient lives. That is the trade-off in front of us.'},
-    {tag:'The market failed — someone has to act',text:'Markets fail. When the failure kills people who had no other option, that is exactly when intervention is justified.'},
+    {tag:'The market failed someone has to act',text:'Markets fail. When the failure kills people who had no other option, that is exactly when intervention is justified.'},
     {tag:'Doing nothing is a ruling too',text:'If we find no wrongdoing, we are endorsing this pricing model. Own that decision, because the families outside certainly will.'}
   ],
   restrain:[
-    {tag:'The R&D cost is real',text:'This drug took 14 years and $2.6 billion to develop. Most candidates never make it. That cost has to go somewhere — and it goes into the price.'},
+    {tag:'The R&D cost is real',text:'This drug took 14 years and $2.6 billion to develop. Most candidates never make it. That cost has to go somewhere and it goes into the price.'},
     {tag:'Overrule the patent and future drugs don\'t happen',text:'The moment investors believe their IP can be seized, they stop funding the next drug. We save some patients today and lose far more tomorrow.'},
-    {tag:'Intervention causes more deaths long-term',text:'The data on what happens to drug pipelines after forced licensing is clear. Development slows, investment leaves, and future patients die from diseases we never cured.'},
+    {tag:'Intervention causes more deaths long term',text:'The data on what happens to drug pipelines after forced licensing is clear. Development slows, investment leaves, and future patients die from diseases we never cured.'},
     {tag:'The legal authority isn\'t there',text:'Domestic compulsory licensing has never been done in the US. The authority is contested. A ruling that overreaches the law will be reversed and make things worse.'}
   ],
   neutral:[
     {tag:'Legal and ethical are separate questions',text:'Something can be ethically wrong without being legally actionable, and vice versa. This panel needs to be precise about which one it is actually ruling on.'},
-    {tag:'Has every other option been tried?',text:'Tiered pricing, subsidies, voluntary licensing — these exist. Before we rule, has anyone genuinely tried them? The answer changes what intervention means.'},
+    {tag:'Has every other option been tried?',text:'Tiered pricing, subsidies, voluntary licensing these exist. Before we rule, has anyone genuinely tried them? The answer changes what intervention means.'},
     {tag:'Both sides have a real point',text:'Patients are dying now. The pipeline matters for the future. A ruling that pretends one of those facts away will not hold up.'},
     {tag:'This sets a precedent either way',text:'Finding wrongdoing sets one kind of precedent. Finding none sets another. Think carefully about which world you are creating before you decide.'}
   ]
 };
 
 const PHARMA_STEP2=[
-  {tag:'Count lives across both timelines',text:'Patients dying now under this price, versus patients who won\'t survive future diseases if the pipeline collapses. The most ethical outcome saves more lives total — not just today\'s.'},
+  {tag:'Count lives across both timelines',text:'Patients dying now under this price, versus patients who won\'t survive future diseases if the pipeline collapses. The most ethical outcome saves more lives total not just today\'s.'},
   {tag:'Was there real harm with no alternative?',text:'If this pricing caused direct, identifiable deaths among people who had no other option, that is harm. Call it what it is.'},
-  {tag:'Access to survival is not a luxury',text:'If life-saving treatment is a right and not a commodity, then pricing it out of reach is not an unfortunate market outcome. It is a violation.'},
-  {tag:'The long-term consequences count too',text:'Ruling against the company might feel like justice today. But if it kills the next drug that saves a million people, that outcome is also a moral failure — just a slower one.'},
+  {tag:'Access to survival is not a luxury',text:'If life saving treatment is a right and not a commodity, then pricing it out of reach is not an unfortunate market outcome. It is a violation.'},
+  {tag:'The long term consequences count too',text:'Ruling against the company might feel like justice today. But if it kills the next drug that saves a million people, that outcome is also a moral failure just a slower one.'},
   {tag:'What does a just system do when markets fail people',text:'We built institutions like this panel precisely for moments when the market produces an outcome that kills people unnecessarily. This is that moment.'},
-  {tag:'Be honest about uncertainty before setting precedent',text:'This ruling governs future cases. If we are not certain — about the ethics, the law, the downstream effects — we should be more careful, not less.'}
+  {tag:'Be honest about uncertainty before setting precedent',text:'This ruling governs future cases. If we are not certain about the ethics, the law, the downstream effects we should be more careful, not less.'}
 ];
 
 const PHARMA_STEP3=[
@@ -445,7 +483,7 @@ const PHARMA_STEP3=[
   {tag:'This ruling carries your name',text:'The families who lost someone will read this finding. The companies will act on it. Whatever you decide, you are attached to it.'},
   {tag:'Future patients are in this room too',text:'This ruling shapes the drugs that get developed, the prices future patients face, the access they have. We are deciding for people who aren\'t here yet.'},
   {tag:'What kind of society are we choosing to be',text:'When the market kills people who didn\'t have to die, what does a just society do? The answer we give here is the answer to that question.'},
-  {tag:'Could you explain this to the families outside?',text:'When this is published, families who lost someone will read it. Whatever you decide — make sure it\'s something you can explain to them, not just defend.'},
+  {tag:'Could you explain this to the families outside?',text:'When this is published, families who lost someone will read it. Whatever you decide make sure it\'s something you can explain to them, not just defend.'},
   {tag:'Are you being honest about the costs of your position?',text:'Are you presenting the costs of your argument as honestly as its benefits? The people affected deserve a ruling that engaged with the full picture.'}
 ];
 
@@ -558,7 +596,7 @@ function goToBriefing(){
   setPhasebar('pb-brief',1,3);
   document.getElementById('brief-role-title').textContent=role.title;
   document.getElementById('brief-role-box').innerHTML=`<div class="box-label">Your briefing</div><div class="box-text">${role.briefing}<br><br><strong>Ethical angle:</strong> ${role.ethicsNote}</div>`;
-  document.getElementById('brief-scenario-box').innerHTML=`<div class="box-label">The situation — ${scen.title}</div><div class="box-text">${scen.text}</div>`;
+  document.getElementById('brief-scenario-box').innerHTML=`<div class="box-label">The situation ${scen.title}</div><div class="box-text">${scen.text}</div>`;
   show('s-briefing');
 }
 
@@ -566,7 +604,7 @@ function goToArgument(){
   const role=activeRoles().find(r=>r.id===game.currentRoleId);
   if(role.id==='president'){goToPresidentDecision();return;}
   setPhasebar('pb-arg',2,3);
-  document.getElementById('arg-role-reminder').textContent=`${role.title} — ${role.briefing.split('.')[0]}.`;
+  document.getElementById('arg-role-reminder').textContent=`${role.title} ${role.briefing.split('.')[0]}.`;
   argChoices={step1:null,step2:null,step3:null};
   document.getElementById('step2').style.display='none';
   document.getElementById('step3').style.display='none';
@@ -615,8 +653,8 @@ function lockInArgument(){
   const isLast=game.players.length===7;
   const isPresNext=game.players.length===6;
   const role=activeRoles().find(r=>r.id===game.currentRoleId);
-  document.getElementById('handoff-title').textContent=isLast?'Everyone\'s in. Time for the verdict.':isPresNext?'Advisors done. Pass to the decision-maker.':`Done. Pass it to Player ${game.players.length+1}.`;
-  document.getElementById('handoff-box').innerHTML=`<div class="box-label">Saved</div><div class="box-text"><strong>${role.title}</strong> — argument locked. ${isLast?'All players have weighed in.':isPresNext?'The decision-maker reads the arguments and decides.':`${7-game.players.length} player${7-game.players.length!==1?'s':''} to go.`}</div>`;
+  document.getElementById('handoff-title').textContent=isLast?'Everyone\'s in. Time for the verdict.':isPresNext?'Advisors done. Pass to the decision maker.':`Done. Pass it to Player ${game.players.length+1}.`;
+  document.getElementById('handoff-box').innerHTML=`<div class="box-label">Saved</div><div class="box-text"><strong>${role.title}</strong> argument locked. ${isLast?'All players have weighed in.':isPresNext?'The decision maker reads the arguments and decides.':`${7-game.players.length} player${7-game.players.length!==1?'s':''} to go.`}</div>`;
   const hSlots=document.getElementById('handoff-slots');
   hSlots.innerHTML='';
   for(let i=0;i<7;i++){
@@ -627,11 +665,11 @@ function lockInArgument(){
     else{div.innerHTML=`<span class="slot-num">${i+1}</span><span class="slot-role" style="color:var(--ink4)">Player ${i+1}</span><span class="slot-status slot-empty">Waiting</span>`;}
     hSlots.appendChild(div);
   }
-  document.getElementById('btn-handoff-next').textContent=isLast?'Read the verdict →':isPresNext?'Pass to the decision-maker →':`Pass to Player ${game.players.length+1} →`;
+  document.getElementById('btn-handoff-next').textContent=isLast?'Read the verdict →':isPresNext?'Pass to the decision maker →':`Pass to Player ${game.players.length+1} →`;
   const hasPresident=game.players.some(p=>p.roleId==='president');
   const skipBtn=document.getElementById('btn-handoff-skip');
   skipBtn.style.display=(!isLast&&game.players.length>=1)?'inline-flex':'none';
-  skipBtn.textContent=hasPresident?'Skip to deliberation →':'Skip to decision-maker →';
+  skipBtn.textContent=hasPresident?'Skip to deliberation →':'Skip to decision maker →';
   show('s-handoff');
 }
 
@@ -646,10 +684,10 @@ function goToPresidentDecision(){
   const scen=SCENARIOS.find(s=>s.id===game.scenario);
   // Update heading/label for pharma scenario
   if(game.scenario==='pharma'){
-    document.getElementById('pres-h1').textContent='Chair — the panel has spoken.';
-    document.getElementById('pres-decision-lead').textContent='Read every argument below. Then write your ruling — acknowledge what you heard, name what weighed on you most, and announce your finding.';
+    document.getElementById('pres-h1').textContent='Chair the panel has spoken.';
+    document.getElementById('pres-decision-lead').textContent='Read every argument below. Then write your ruling acknowledge what you heard, name what weighed on you most, and announce your finding.';
   } else {
-    document.getElementById('pres-h1').textContent='Mr. / Madam President — the room has spoken.';
+    document.getElementById('pres-h1').textContent='Mr. / Madam President the room has spoken.';
     document.getElementById('pres-decision-lead').textContent='Read every argument below. Then deliver your verdict.';
   }
   // Build verdict buttons dynamically
@@ -747,7 +785,7 @@ function goToOutcome(){
       // Planet safe
       document.getElementById('outcome-eyebrow').textContent='The Consequence';
       document.getElementById('outcome-title').textContent='DIPLOMACY ORDERED';
-      document.getElementById('outcome-subtitle').textContent='Restraint held. Back-channels opened. The world held its breath — and survived.';
+      document.getElementById('outcome-subtitle').textContent='Restraint held. Back channels opened. The world held its breath and survived.';
       animatePlanetSafe(ctx,canvas);
     }
   } else {
@@ -790,7 +828,7 @@ function animatePlanetExplosion(ctx,canvas){
     });
   }
 
-  // Planet chunks — large irregular debris pieces
+  // Planet chunks large irregular debris pieces
   function spawnDebris(n, burst){
     for(let i=0;i<n;i++){
       const angle = Math.random()*Math.PI*2;
@@ -801,7 +839,7 @@ function animatePlanetExplosion(ctx,canvas){
         x: cx+Math.cos(angle)*dist,
         y: cy+Math.sin(angle)*dist,
         vx: Math.cos(angle)*speed*(0.7+Math.random()*0.6),
-        vy: Math.sin(angle)*speed*(0.7+Math.random()*0.6) - (burst?2:0.5),
+        vy: Math.sin(angle)*speed*(0.7+Math.random()*0.6) (burst?2:0.5),
         rot: Math.random()*Math.PI*2,
         rotV: (Math.random()-0.5)*0.15,
         r: burst ? (6+Math.random()*18) : (3+Math.random()*10),
@@ -814,7 +852,7 @@ function animatePlanetExplosion(ctx,canvas){
     }
   }
 
-  // Embers — small hot sparks
+  // Embers small hot sparks
   function spawnEmbers(n, intense){
     for(let i=0;i<n;i++){
       const angle = Math.random()*Math.PI*2;
@@ -823,7 +861,7 @@ function animatePlanetExplosion(ctx,canvas){
         x: cx+(Math.random()-0.5)*pr*2,
         y: cy+(Math.random()-0.5)*pr*2,
         vx: Math.cos(angle)*speed,
-        vy: Math.sin(angle)*speed - (intense?1:0),
+        vy: Math.sin(angle)*speed (intense?1:0),
         r: intense ? (2+Math.random()*5) : (1+Math.random()*3),
         hue: Math.random()*50,          // orange-red
         life:1,
@@ -839,9 +877,9 @@ function animatePlanetExplosion(ctx,canvas){
 
   // Setup shockwaves at known times
   spawnShockwave(60,  'rgba(255,220,100,X)', W*0.8, 5.5, 8);
-  spawnShockwave(80,  'rgba(255,140,40,X)',  W*0.6, 4.0, 5);
-  spawnShockwave(100, 'rgba(255,80,20,X)',   W*0.5, 3.2, 4);
-  spawnShockwave(140, 'rgba(200,60,10,X)',   W*0.4, 2.5, 3);
+  spawnShockwave(80,  'rgba(255,140,40,X)', W*0.6, 4.0, 5);
+  spawnShockwave(100, 'rgba(255,80,20,X)', W*0.5, 3.2, 4);
+  spawnShockwave(140, 'rgba(200,60,10,X)', W*0.4, 2.5, 3);
 
   function draw(){
     // ── BACKGROUND ──────────────────────────────────────────────
@@ -860,7 +898,7 @@ function animatePlanetExplosion(ctx,canvas){
     // Stars
     stars.forEach(s=>{
       const twinkle = 0.3+0.7*Math.abs(Math.sin(t*s.speed+s.base*10));
-      const hide = Math.max(0, 1 - glowAmt*1.4); // stars fade as sky brightens
+      const hide = Math.max(0, 1 glowAmt*1.4); // stars fade as sky brightens
       ctx.globalAlpha = twinkle * hide;
       ctx.fillStyle='white';
       ctx.beginPath();ctx.arc(s.x,s.y,s.r,0,Math.PI*2);ctx.fill();
@@ -872,7 +910,7 @@ function animatePlanetExplosion(ctx,canvas){
     const intact = explodePhase < 1;
 
     if(intact){
-      const scale = 1 - explodePhase*0.25;
+      const scale = 1 explodePhase*0.25;
       ctx.save();
       ctx.translate(cx,cy);
       ctx.scale(scale,scale);
@@ -1185,7 +1223,7 @@ function animatePharmacistJail(ctx,canvas){
 
   function draw(){
     ctx.clearRect(0,0,W,H);
-    // bg — cold institutional gray
+    // bg cold institutional gray
     ctx.fillStyle='#1a1a2e';ctx.fillRect(0,0,W,H);
 
     // floor
@@ -1248,7 +1286,7 @@ function animatePharmacistJail(ctx,canvas){
     ctx.fillStyle='#553300';ctx.font='7px sans-serif';ctx.textAlign='center';
     ctx.fillText('RxCEO',px+sway,py-7);
 
-    // sad expression — droopy mouth
+    // sad expression droopy mouth
     ctx.strokeStyle='#884422';ctx.lineWidth=2;ctx.lineCap='round';
     ctx.beginPath();ctx.arc(px+sway,py-42,6,0.3*Math.PI,0.7*Math.PI);ctx.stroke();
     // eyes
@@ -1332,7 +1370,7 @@ function animatePersonDying(ctx,canvas){
     ctx.fillStyle='#666677';ctx.beginPath();ctx.roundRect(72,bedY-55,22,bedH+70,5);ctx.fill();
     ctx.fillStyle='#666677';ctx.beginPath();ctx.roundRect(W-94,bedY-25,18,bedH+40,5);ctx.fill();
 
-    // person - head only, plain circle on pillow
+    // person head only, plain circle on pillow
     const bpm=getBPM(t);
     ctx.fillStyle='rgb(210,175,140)';
     ctx.beginPath();ctx.arc(128,bedY-20,24,0,Math.PI*2);ctx.fill();
@@ -1385,7 +1423,7 @@ function animatePersonDying(ctx,canvas){
 
     ctx.fillStyle=bpm>0?'rgba(0,255,80,0.85)':'rgba(255,60,60,0.9)';
     ctx.font='bold 11px IBM Plex Mono, monospace';ctx.textAlign='left';
-    ctx.fillText(bpm>0?`${Math.round(bpm)} BPM`:'-- 0 BPM',monX+8,monY+monH-7);
+    ctx.fillText(bpm>0?`${Math.round(bpm)} BPM`:'0 BPM',monX+8,monY+monH-7);
 
     if(t>=420){
       ctx.strokeStyle='rgba(255,60,60,0.7)';ctx.lineWidth=1.5;
@@ -1413,6 +1451,77 @@ function animatePersonDying(ctx,canvas){
     if(t<1000)requestAnimationFrame(draw);
   }
   draw();
+}
+
+/* ── REAL WORLD ──────────────────────────────────────────────────── */
+const REAL_WORLD={
+  misfire:{
+    eyebrow:'What really happened',
+    title:'The 1983 Soviet Nuclear False Alarm',
+    intro:'Your simulation was based on a real crisis. On September 26, 1983, a Soviet early warning system reported an incoming US nuclear strike. One man had minutes to decide whether it was real.',
+    event:`On September 26, 1983, at a secret Soviet nuclear early warning facility outside Moscow, the duty officer a Soviet military officer watched his screen show a single US intercontinental ballistic missile launch. Then a second. Then three more. Five missiles, inbound. The system reported its confidence level as "highest." His commanders were waiting for his report. If he passed it up the chain, Soviet doctrine called for immediate retaliation. He had minutes.
+
+He did not report it as a real attack. Something felt wrong US doctrine called for massive first strikes, not five missiles. He judged the system had malfunctioned. He was right. A rare alignment of sunlight on cloud cover had fooled the satellite sensor. There were no missiles.
+
+The world did not know how close it had come until decades later, when Soviet-era records were declassified.`,
+    outcome:`No retaliation was launched. The officer was later reprimanded not praised because admitting the false alarm meant admitting a catastrophic flaw in the Soviet early warning system. He received no official recognition for his decision during the Cold War. He died in 2017. In later interviews he said he was simply doing his job, and that he was not sure even then that he had done the right thing.
+
+He had saved hundreds of millions of lives. The world learned about it from a documentary in 2014.`,
+    verdicts:{
+      strike:`Your group authorized retaliation. In the real event, that decision which would have meant launching on a false alarm was not made. The officer who held the line did so against enormous institutional pressure, in a system designed to assume the worst. Your group's decision reflects how that system was designed to work. The question is whether the system itself was right.`,
+      restraint:`Your group chose restraint which matches what happened in reality. The officer on duty did not report the alarm as real, despite every institutional incentive to do so. But he had no guarantee he was right. He made a judgment call under radical uncertainty. Your group faced the same uncertainty. The question worth discussing is not whether restraint was correct, but how your group got there.`
+    },
+    questions:[
+      {cat:'ethics',text:'The officer who held the decision was later reprimanded for it, despite preventing a catastrophe. What does it mean to do the ethically right thing when the institution you serve would punish you for it?'}
+    ]
+  },
+  pharma:{
+    eyebrow:'What really happened',
+    title:'The Insulin Pricing Crisis in the United States',
+    intro:'Your simulation reflected a real and ongoing public health crisis. Insulin a drug discovered in 1921 whose patent was sold for $1 to ensure universal access has become one of the most financially out-of-reach medications in the developed world.',
+    event:`Insulin was discovered in 1921 by researchers at the University of Toronto. They sold the patent to the university for one dollar each, explicitly so the drug could be manufactured and distributed as widely as possible. One of them wrote that insulin belonged to the world.
+
+Within decades, pharmaceutical companies had developed newer synthetic formulations and patented those. Over the following fifty years, the price of insulin in the United States increased by over 1,000%. By the 2010s, a monthly supply that cost roughly $20 in Canada cost over $300 in the US sometimes several hundred dollars more. Many patients require multiple vials per month.
+
+People began rationing their insulin stretching doses, skipping injections, buying veterinary insulin not formulated for human use. Between 2017 and 2023, multiple documented deaths were attributed directly to insulin rationing. In Minnesota, a 26-year-old man died after aging off his parents' insurance and rationing his supply while trying to afford a full prescription.`,
+    outcome:`In 2023, the US federal government capped insulin costs at $35 per month for Medicare recipients under the Inflation Reduction Act. Private insurers were not required to follow. Several major manufacturers voluntarily capped prices under significant public and congressional pressure after years of lobbying against such caps.
+
+No pharmaceutical executive faced criminal charges. The companies maintained that pricing reflected R&D costs and market dynamics. Congressional hearings produced testimony, public record, and considerable anger but no criminal conviction. The $35 cap covers some patients. Many others remain unprotected.`,
+    verdicts:{
+      guilty:`Your group found the companies in the wrong which aligns with the position of most public health advocates, and with the families of people who died rationing insulin. In reality, no formal legal finding of wrongdoing was made against the manufacturers. The gap between what your panel decided and what the legal system produced is itself a question worth discussing.`,
+      notguilty:`Your group cleared the companies which reflects the legal outcome in reality. No criminal charges were filed. Companies maintained they operated within the law, and the law agreed. But the deaths continued. If a legal system produces an outcome that the people most affected experience as a profound injustice, what does that mean for the legitimacy of that system?`
+    },
+    questions:[
+      {cat:'ethics',text:'The companies argued they broke no law, and they were right. Is there a meaningful distinction between what is legal and what is ethical? Where does your group draw that line, and why?'}
+    ]
+  }
+};
+
+function goToRealWorld(){
+  const scen=SCENARIOS.find(s=>s.id===game.scenario);
+  const rw=REAL_WORLD[game.scenario];
+  if(!rw){goToScores();return;}
+
+  document.getElementById('rw-eyebrow').textContent=rw.eyebrow;
+  document.getElementById('rw-title').textContent=rw.title;
+  document.getElementById('rw-intro').textContent=rw.intro;
+  document.getElementById('rw-event-text').textContent=rw.event;
+  document.getElementById('rw-outcome-text').textContent=rw.outcome;
+
+  const compareText=rw.verdicts[game.verdict]||rw.verdicts[Object.keys(rw.verdicts)[0]];
+  document.getElementById('rw-compare-text').textContent=compareText;
+
+  const qContainer=document.getElementById('rw-questions');
+  qContainer.innerHTML='';
+  rw.questions.forEach(q=>{
+    const div=document.createElement('div');
+    div.className='rw-q fadein';
+    const catLabels={ethics:'Ethics',eq:'Emotional Intelligence',cc:'Cultural Competency'};
+    div.innerHTML=`<span class="rw-q-cat ${q.cat}">${catLabels[q.cat]}</span><div class="rw-q-text">${q.text}</div>`;
+    qContainer.appendChild(div);
+  });
+
+  show('s-realworld');
 }
 
 /* ── SCORES ─────────────────────────────────────────────────────── */
@@ -1462,7 +1571,7 @@ function renderScores(){
   document.getElementById('score-grid-top').innerHTML=`<div class="score-card" style="grid-column:span 2"><div class="sc-label">Group leadership score</div><div class="sc-val">${s.groupScore}<span class="sc-max"> / 100</span></div><div class="sc-bar"><div class="sc-bar-fill" style="width:${s.groupScore}%"></div></div><div style="font-size:12px;color:var(--ink3);margin-top:8px;line-height:1.65">${s.groupNote}</div></div>`;
   document.getElementById('player-scores').innerHTML=s.players.map(p=>{
     const total=p.ethics+p.eq+p.roleAcc+p.persuasion;
-    return `<div class="player-score-row"><div class="ps-name">${p.role} — <span style="font-family:var(--mono);font-size:12px;color:var(--red-d)">${total}/100</span></div><div style="display:flex;gap:10px;margin:5px 0;flex-wrap:wrap"><span style="font-family:var(--mono);font-size:10px;color:var(--ink4)">Ethics ${p.ethics}/25</span><span style="font-family:var(--mono);font-size:10px;color:var(--ink4)">EQ ${p.eq}/25</span><span style="font-family:var(--mono);font-size:10px;color:var(--ink4)">Role ${p.roleAcc}/25</span><span style="font-family:var(--mono);font-size:10px;color:var(--ink4)">Persuasion ${p.persuasion}/25</span></div><div class="ps-feedback">${p.feedback}</div></div>`;
+    return `<div class="player-score-row"><div class="ps-name">${p.role} <span style="font-family:var(--mono);font-size:12px;color:var(--red-d)">${total}/100</span></div><div style="display:flex;gap:10px;margin:5px 0;flex-wrap:wrap"><span style="font-family:var(--mono);font-size:10px;color:var(--ink4)">Ethics ${p.ethics}/25</span><span style="font-family:var(--mono);font-size:10px;color:var(--ink4)">EQ ${p.eq}/25</span><span style="font-family:var(--mono);font-size:10px;color:var(--ink4)">Role ${p.roleAcc}/25</span><span style="font-family:var(--mono);font-size:10px;color:var(--ink4)">Persuasion ${p.persuasion}/25</span></div><div class="ps-feedback">${p.feedback}</div></div>`;
   }).join('');
 }
 
