@@ -350,33 +350,33 @@ canvas#outcome-canvas{border-radius:8px;display:block;max-width:100%}
 /* ── DATA ─────────────────────────────────────────────────────── */
 const ROLES=[
   {id:'president',icon:'[POTUS]',title:'President of the United States',desc:'The final decision is yours alone. You\'ve heard every advisor. Now you decide.',stance:'neutral',stanceLabel:'Final Authority',
-   briefing:'You are the President. You don\'t advocate you decide. After every advisor has made their case, the device comes to you. You\'ll read what they argued, weigh it against everything you know, and announce your verdict. Your word is final.',
-   ethicsNote:'Every decision at this level is a moral one. You carry the weight of every life on both sides. There\'s no right answer only the one you can defend to history.'},
-  {id:'defense',icon:'[DEF]',title:'Secretary of Defense',desc:'You run the military. You tell the President what\'s actually possible and what it\'ll cost.',stance:'strike',stanceLabel:'Leans: Strike',
-   briefing:'You\'ve run the numbers. A strike is executable. The window is real. What keeps you up at night isn\'t the operation itself it\'s the hour of hesitation that costs you the window entirely. You believe the adversary is watching this room for weakness, and waiting is the most dangerous thing you can do right now.',
-   ethicsNote:'Just War theory is your lens. Ask yourself honestly: is this truly a last resort? Is the force proportional to the actual threat? Can civilians be meaningfully protected?'},
+   briefing:'Your job here is to listen, not argue. Each advisor is going to make their case, and when they are all done the device comes to you. Read through what everyone said, think about it, and then write out your decision and pick your verdict. You are the only one who gets to decide.',
+   ethicsNote:'Whatever you decide, people on both sides of this will be affected. There is no option here that has no cost. Think about what you can actually justify, not just what feels decisive.'},
+  {id:'defense',icon:'[DEF]',title:'Secretary of Defense',desc:'You run the military. You tell the President what is actually possible and what it\'ll cost.',stance:'strike',stanceLabel:'Leans: Strike',
+   briefing:'From where you sit, the military option is ready and the timing matters. You think waiting too long is itself a risk, not just a neutral choice. Your argument is that hesitation has consequences too, and the room should hear that clearly.',
+   ethicsNote:'Think honestly about whether this situation actually meets the bar for justified military force. Is it truly a last resort? Is the response proportional? These are not just academic questions here.'},
   {id:'state',icon:'[STA]',title:'Secretary of State',desc:'Every U.S. alliance in the world runs through your office. A strike doesn\'t just happen it ripples.',stance:'restrain',stanceLabel:'Leans: Restraint',
-   briefing:'You\'ve spent 30 years building the relationships that are now on the line. A nuclear strike will blow up three of them before the dust settles. You have back channels open that nobody else in this room knows about. You need 72 hours. That\'s all you\'re asking for.',
-   ethicsNote:'What precedent does this set? Who else is watching right now, deciding whether to build their own nuclear program? International law isn\'t just paperwork it\'s the architecture that keeps things from getting worse.'},
+   briefing:'You have relationships with foreign governments that took decades to build, and a strike puts all of them at risk fast. You also have some diplomatic options open that the rest of the room does not know about yet. You are asking for more time before anything irreversible happens.',
+   ethicsNote:'Think about what this decision signals to other countries. International norms around nuclear weapons exist for a reason, and breaking them has effects well beyond this moment.'},
   {id:'nsa',icon:'[NSA]',title:'National Security Advisor',desc:'You sit closest to the President. Your job is to make sure the intelligence is solid before anything irreversible happens.',stance:'neutral',stanceLabel:'Neutral',
-   briefing:'You\'ve seen the raw intelligence, not the cleaned up briefing version. There are two competing interpretations and one of them points to a false alarm. You\'re not saying don\'t act. You\'re saying we haven\'t been honest with ourselves about the uncertainty yet.',
-   ethicsNote:'Intellectual honesty is your ethical obligation. The President trusts you to tell the truth even when it\'s inconvenient. Overconfidence in flawed intelligence has started catastrophic wars before.'},
-  {id:'transport',icon:'[TRN]',title:'Secretary of Transportation',desc:'You\'re the least expected person in this room. Which means you\'re the one thinking about what actually happens on the ground.',stance:'restrain',stanceLabel:'Leans: Restraint',
-   briefing:'You\'ve seen the evacuation plans. They\'re not real. The casualty projections from even a limited nuclear exchange are numbers this room keeps treating like statistics. You came here to say them out loud, because someone has to.',
-   ethicsNote:'Put actual people back in this conversation. Not "acceptable losses." Not percentages. People with families, with addresses, with no idea this meeting is happening.'},
-  {id:'cia',icon:'[CIA]',title:'CIA Director',desc:'Your team produced the intelligence that got us into this room. You know how reliable it is and how it isn\'t.',stance:'neutral',stanceLabel:'Neutral',
-   briefing:'You\'re sitting on two things nobody else has: serious doubts about source reliability, and three covert options that could neutralize the threat without a single bomb dropping. You came here to make sure those options get on the table before a decision gets made.',
-   ethicsNote:'You have a professional obligation not to let your work be used to ratify a decision that\'s already been made. The uncertainty in that intelligence is real, and this room needs to hear it.'},
+   briefing:'You have seen the underlying intelligence, not just the summary, and there are two ways to read it. One of them suggests this could be a false alarm. You are not saying hold forever, you are saying the room has not been fully honest about how uncertain the picture actually is.',
+   ethicsNote:'Your obligation is to tell the President what is actually true, including the parts that are uncertain or inconvenient. Getting that wrong in situations like this has had catastrophic consequences historically.'},
+  {id:'transport',icon:'[TRN]',title:'Secretary of Transportation',desc:'You\'re the least expected person in this room. Which means you are the one thinking about what actually happens on the ground.',stance:'restrain',stanceLabel:'Leans: Restraint',
+   briefing:'You have looked at the actual casualty numbers and the evacuation plans, and neither is as reassuring as people in this room seem to think. Your job today is to make sure those numbers are not just treated as abstractions. Someone needs to say them out loud.',
+   ethicsNote:'The people affected by this decision are not statistics. Try to keep that in your argument. It is easy for a room like this to talk about casualties as numbers rather than as actual human beings.'},
+  {id:'cia',icon:'[CIA]',title:'CIA Director',desc:'Your team produced the intelligence that got us into this room. You know how reliable it is and how it is not.',stance:'neutral',stanceLabel:'Neutral',
+   briefing:'You have concerns about how reliable the intelligence source actually is, and you also have some covert options that have not been presented to the room yet. You want both of those things on the table before anyone makes a final call.',
+   ethicsNote:'If you have doubts about the intelligence, this is the time to say so. Your job is not to give people the answer they are looking for, it is to give them an accurate picture of what you actually know.'},
   {id:'jcs',icon:'[JCS]',title:'Chairman, Joint Chiefs',desc:'You\'ve spent your career preparing for a moment like this. You\'re the one who actually has to give the order.',stance:'strike',stanceLabel:'Leans: Strike',
-   briefing:'The targeting packages are ready. The window is closing. You\'ve done this long enough to know that presidents always want one more option, one more hour, one more confirmation and sometimes that\'s exactly how you lose. You need a decision from this room.',
-   ethicsNote:'The Laws of Armed Conflict apply regardless of orders from above. "I was told to" isn\'t an ethical defense and you know it. What does your own conscience say when you set the strategy aside?'}
+   briefing:'The military is ready to act and the longer this goes without a decision the more complicated it gets. You have seen enough of these situations to know that waiting for perfect information is not always realistic. You are here to push for a clear answer.',
+   ethicsNote:'Following orders does not remove your personal ethical responsibility. Think about what you actually believe is right here, separate from what your role or the chain of command might expect.'}
 ];
 
 const SCENARIOS=[
   {id:'misfire',title:'Incoming Nuclear Strike Detected',
    text:'NORAD has confirmed a ballistic missile inbound toward a major U.S. city. Eight minutes to impact. Intelligence is 80% confident it was an authorized launch not an accident. The adversary has gone dark. Military is ready to retaliate immediately. The question: authorize a retaliatory nuclear strike now, or hold and attempt last-minute diplomacy?',
    verdictA:'strike', verdictALabel:'Authorize Retaliation',
-   verdictB:'restraint', verdictBLabel:'Hold Attempt Diplomacy'},
+   verdictB:'restraint', verdictBLabel:'Attempt Diplomacy'},
   {id:'pharma',title:'Life Saving Drug Priced Out of Reach',
    text:'A pharmaceutical company holds the patent on the only effective treatment for a rapidly spreading terminal illness. They have set the price at $180,000 per course deliberately out of reach for uninsured patients. Dozens are dying weekly because they cannot afford it. The FDA has a generic manufacturer ready. The question: is the company ethically in the wrong, and should government intervene to force access?',
    verdictA:'guilty', verdictALabel:'Pharmacies / Companies Are in the Wrong',
@@ -385,120 +385,380 @@ const SCENARIOS=[
 
 const PHARMA_ROLES=[
   {id:'president',icon:'[CHAIR]',title:'Chair of the Ethics Panel',desc:'The final decision is yours alone. You\'ve heard every voice. Now you rule.',stance:'neutral',stanceLabel:'Final Authority',
-   briefing:'You chair the national bioethics panel convened by Congress. You don\'t advocate you rule. After every panelist has made their case, you\'ll read their arguments, weigh the moral and legal dimensions, and announce the panel\'s official finding.',
-   ethicsNote:'This decision will set precedent for decades. There is no clean answer only the one you can defend to history and to the families watching.'},
+   briefing:'You are running this panel, not arguing a side. Your job is to listen to everyone, weigh what they said, and then write out a ruling. You will read all the arguments and then announce what the panel finds.',
+   ethicsNote:'Whatever you decide here will be used as a reference point for future cases. There is no perfect answer, so focus on the one you can genuinely defend with a clear explanation.'},
   {id:'patient-adv',icon:'[PAT]',title:'Patient Rights Advocate',desc:'You represent the families who cannot afford the drug. Real people are dying now.',stance:'strike',stanceLabel:'Leans: Guilty',
-   briefing:'You\'ve been in those hospital rooms. You\'ve watched people die from a treatable condition because a number on a price sheet was too high. You are here to make sure this panel never forgets that.',
-   ethicsNote:'Distributive justice is your lens. Access to life saving medicine should not depend on wealth. A society that allows preventable death for profit has crossed a moral line.'},
-  {id:'pharma-exec',icon:'[PHM]',title:'Pharmaceutical Industry Representative',desc:'You defend the company\'s right to price its innovation and recoup R&D investment.',stance:'restrain',stanceLabel:'Leans: Not Guilty',
-   briefing:'The drug took 14 years and $2.6 billion to develop. Nine out of ten candidates fail before one reaches market. Without the ability to price for profit, the next breakthrough never gets funded. You are here to defend that system.',
-   ethicsNote:'Incentive structures matter. If you remove the reward, you kill the research pipeline. The alternative no new drugs costs more lives in the long run.'},
+   briefing:'You have spent time with patients and families dealing with this directly. People are dying from something treatable because they cannot afford the drug. That is the reality you are here to put in front of this panel.',
+   ethicsNote:'Think about fairness. Should access to a treatment that could save your life depend on how much money you have? That is the core question your argument should address.'},
+  {id:'pharma-exec',icon:'[PHM]',title:'Pharmaceutical Industry Representative',desc:'You defend the company right to price its innovation and recoup R&D investment.',stance:'restrain',stanceLabel:'Leans: Not Guilty',
+   briefing:'The development process for this drug took 14 years and cost $2.6 billion, and most candidates never make it to market at all. Your argument is that the pricing reflects those real costs, and that undermining the ability to recoup them has consequences for future patients.',
+   ethicsNote:'Think through the longer term consequences of the panel ruling against the company. If drug development becomes unprofitable, what happens to investment in future treatments? That is a real ethical consideration too.'},
   {id:'bioethicist',icon:'[ETH]',title:'Professor of Bioethics',desc:'You bring the philosophical frameworks and refuse to let either side oversimplify.',stance:'neutral',stanceLabel:'Neutral',
-   briefing:'You\'ve spent 20 years studying the intersection of markets and medicine. You know the utilitarian argument. You know the rights based argument. You\'re here to make sure both get a fair hearing and that neither side pretends the other\'s concerns don\'t exist.',
-   ethicsNote:'The question isn\'t just "is pricing legal?" it\'s whether legal and ethical are the same thing here. They often aren\'t.'},
+   briefing:'You have studied these kinds of dilemmas for a long time and you are not here to push one answer. You want both sides to be heard honestly, and you will push back if either side is oversimplifying what is actually a complicated situation.',
+   ethicsNote:'Legal and ethical are not the same thing. Part of your role is to point that out clearly. Something being permitted by law does not automatically make it right, and your argument should engage with that directly.'},
   {id:'economist',icon:'[ECO]',title:'Health Economist',desc:'You follow the money and you know the long term consequences of intervention.',stance:'restrain',stanceLabel:'Leans: Not Guilty',
-   briefing:'Government price controls sound simple. They aren\'t. You\'ve modeled what happens to drug development pipelines after forced licensing. The downstream effects kill more people than the short term intervention saves. You\'re here to make sure the panel understands the full math.',
-   ethicsNote:'Consequentialism cuts both ways. The most ethical outcome is the one that saves the most lives over time not just today.'},
+   briefing:'You have looked at what actually happens to drug development after forced licensing or price controls, and the downstream effects are significant. You want the panel to understand that the consequences of intervening go beyond this one situation.',
+   ethicsNote:'If you are thinking about outcomes, you have to think about all the outcomes, not just the immediate ones. Future patients matter too, and your argument should account for them.'},
   {id:'legislator',icon:'[LEG]',title:'Congressional Representative',desc:'You represent a district where 40 families lost someone to this disease last month.',stance:'strike',stanceLabel:'Leans: Guilty',
-   briefing:'You ran on healthcare access. You have constituents who are burying their children over a pricing decision. You are here to speak for them, and you are not interested in abstractions today.',
-   ethicsNote:'Democratic accountability demands that elected officials act when markets fail the vulnerable. The question is whether the law already permits intervention and if not, whether it should.'},
+   briefing:'You represent people who have been directly affected by this. Some of your constituents have lost family members because they could not afford this drug. You are here to speak for them and you are not going to let this conversation stay theoretical.',
+   ethicsNote:'Think about what your constituents elected you to do. When the market produces outcomes that harm the people you represent, what is your responsibility? That is what your argument should address.'},
   {id:'legal',icon:'[LAW]',title:'Constitutional Law Scholar',desc:'You assess the legal and precedent setting dimensions of any ruling.',stance:'neutral',stanceLabel:'Neutral',
-   briefing:'Compulsory licensing exists in international law for public health emergencies. The U.S. has never used it domestically. You\'re here to explain what the law actually says, what forced access would require, and what it would mean for intellectual property rights going forward.',
-   ethicsNote:'Law and ethics diverge here. Something can be legal and still be wrong or illegal and still be right. Part of your role is naming that gap honestly.'}
+   briefing:'There is an existing legal mechanism called compulsory licensing that could apply here, but the US has never actually used it domestically. You are here to explain what the law says, what using it would actually require, and what it would mean for IP rights going forward.',
+   ethicsNote:'The law and what is ethical do not always match. Your role is to explain what the law actually allows, but also to be honest about where the legal answer and the ethical answer might point in different directions.'}
 ];
 
-// ── NUCLEAR SCENARIO CHOICES ────────────────────────────────────
-const NUCLEAR_STEP1={
-  strike:[
-    {tag:'We have minutes, not hours',text:'The window to respond is closing now. Every second we spend debating is a second our adversary is using to prepare for what comes next.'},
-    {tag:'Not striking is also a choice',text:'If we take a nuclear hit and do nothing, we just told the world we won\'t fight back. That invites the next attack.'},
-    {tag:'Deterrence means nothing if we blink',text:'Our entire defense posture is built on the promise of retaliation. If we don\'t follow through right now, that promise is worthless.'},
-    {tag:'We have a strike option ready',text:'The military is prepared. The target is identified. Waiting only makes our options worse.'}
-  ],
-  restrain:[
-    {tag:'80% is not good enough',text:'We are one in five odds away from starting a nuclear war over a mistake. That is not a threshold I can authorize retaliation on.'},
-    {tag:'Try diplomacy first',text:'We have back channels. We have eight minutes. Use them. If this was an unauthorized launch, striking back starts a war nobody ordered.'},
-    {tag:'Striking back guarantees the worst outcome',text:'One city hit is a catastrophe. Full nuclear exchange is the end. Retaliation turns the first into the second.'},
-    {tag:'This may not have been their government',text:'Intelligence says a rogue commander may have launched without orders. Retaliating against their country for that is not justice it\'s escalation.'}
-  ],
-  neutral:[
-    {tag:'We don\'t know enough yet',text:'There is genuine uncertainty in this intelligence. We should not do something irreversible until we have resolved it.'},
-    {tag:'There are options we haven\'t named',text:'A full strike is not the only response available. Before the President decides, every option needs to be on the table.'},
-    {tag:'The legal authority matters',text:'Even in a crisis, the President needs to be able to defend this decision legally. We should be clear about what that requires.'},
-    {tag:'Both options are dangerous',text:'Striking risks full escalation. Not striking risks emboldening future attacks. We need to be honest about the costs of both.'}
-  ]
-};
+// ── CHOICES ARE NOW KEYED BY ROLE ID ────────────────────────────
+// Each role gets its own step1 (4 options), step2 (4 options), step3 (4 options)
 
-const NUCLEAR_STEP2=[
-  {tag:'The death toll from retaliation is worse',text:'A strike on one city is horrific. A retaliatory exchange kills millions more. If saving lives is the goal, the math points one way.'},
-  {tag:'Is this actually a last resort?',text:'Last resort means we have genuinely tried everything else. Have we? Because once we launch, there is no trying anything else ever again.'},
-  {tag:'There are lines we do not cross',text:'Nuclear weapons on civilian populations even in retaliation cross a moral line we have not crossed since 1945. That line exists for a reason.'},
-  {tag:'What does this say about who we are',text:'We did not choose to be attacked. But we are choosing the response. That choice belongs entirely to us, and it says something about us.'},
-  {tag:'The uncertainty should raise the bar',text:'When the cost of being wrong is millions of deaths, we need more than 80% certainty. The stakes demand a higher standard before we act.'},
-  {tag:'If we\'re wrong, we can\'t undo it',text:'Acting and being wrong means a war we started. Waiting and being wrong is terrible but recoverable. That difference matters.'}
-];
+const ROLE_CHOICES = {
 
-const NUCLEAR_STEP3=[
-  {tag:'The people in those cities are real',text:'The civilians in the target zone did not launch this missile. They do not know this room exists. That is who the order will actually kill.'},
-  {tag:'This decision stays with you',text:'Whatever you decide in the next few minutes, you carry it for the rest of your life. I think you already know that.'},
-  {tag:'The world is watching what we do here',text:'Every other nuclear power is looking at this moment. What we do now sets the rules for everyone who comes after us.'},
-  {tag:'Can you live with being wrong?',text:'If we authorize the strike and the intelligence was off can you live with that? Answer that question honestly before you decide.'},
-  {tag:'Holding back is not weakness',text:'Not launching does not mean we lost. It means we did not let an eight minute clock force us into ending civilization.'},
-  {tag:'How we respond defines us',text:'We did not choose to be attacked. We do choose how we respond. Make sure that choice reflects who we actually want to be.'}
-];
+  defense: {
+    step1: [
+      {tag:'We need to decide now', text:'The timing matters here. If we are going to respond, we have a narrow window. Every minute we wait makes our options worse, not better.'},
+      {tag:'Not responding sends a message too', text:'If we take a hit and do nothing, every other country watching this takes note. That is not a neutral outcome. It is a choice with real consequences.'},
+      {tag:'We are ready to act', text:'The military has everything in place. The targets are identified and we can move quickly once we get a decision. That readiness does not last forever.'},
+      {tag:'Waiting is its own kind of risk', text:'I understand the instinct to gather more information. But there is a point where asking for more time becomes a decision by default. I want the room to recognize that.'}
+    ],
+    step2: [
+      {tag:'We have the legal basis to respond', text:'When a country launches a nuclear weapon at us, international law supports a proportional response. That is not a controversial reading. It is the framework we and our allies have operated under for decades.'},
+      {tag:'80% certainty is actually high for decisions like this', text:'We make life and death calls in the military on far less certainty than this every day. I am not saying certainty does not matter. I am saying 80% is not nothing.'},
+      {tag:'Not responding has long term costs too', text:'If we absorb this without responding, we are telling anyone watching that striking us first carries no real consequence. That is a dangerous signal to send.'},
+      {tag:'Our strike targets infrastructure, not civilians', text:'The options I have prepared are aimed at the launch sites and command facilities, not at cities. We can respond in a way that is targeted and proportional.'}
+    ],
+    step3: [
+      {tag:'I want to be honest about where I stand', text:'My read is that not responding creates more danger in the long run than responding does. I want the President to hear that clearly, even if others in this room disagree.'},
+      {tag:'My people need a decision', text:'I have staff waiting right now for an order. Whatever we decide, they need clear direction soon. The uncertainty has its own operational cost.'},
+      {tag:'I am not pushing for war, I am asking for clarity', text:'I understand what it means to authorize a strike. I am not minimizing that. I am saying a clear decision, either way, is what this moment calls for.'},
+      {tag:'This is exactly what all the planning was for', text:'Every training exercise and contingency plan we have built was preparation for a situation like this. The question is whether we act on that preparation.'}
+    ]
+  },
 
-// ── PHARMA SCENARIO CHOICES ──────────────────────────────────────
-const PHARMA_STEP1={
-  strike:[
-    {tag:'People are dying over a price tag',text:'The cure exists. The patients exist. The only thing between them is a number a company chose. That is what this panel is being asked to ignore.'},
-    {tag:'Revenue does not outweigh survival',text:'No ethical argument I know of says a company\'s profit margin matters more than whether a patient lives. That is the trade-off in front of us.'},
-    {tag:'The market failed someone has to act',text:'Markets fail. When the failure kills people who had no other option, that is exactly when intervention is justified.'},
-    {tag:'Doing nothing is a ruling too',text:'If we find no wrongdoing, we are endorsing this pricing model. Own that decision, because the families outside certainly will.'}
-  ],
-  restrain:[
-    {tag:'The R&D cost is real',text:'This drug took 14 years and $2.6 billion to develop. Most candidates never make it. That cost has to go somewhere and it goes into the price.'},
-    {tag:'Overrule the patent and future drugs don\'t happen',text:'The moment investors believe their IP can be seized, they stop funding the next drug. We save some patients today and lose far more tomorrow.'},
-    {tag:'Intervention causes more deaths long term',text:'The data on what happens to drug pipelines after forced licensing is clear. Development slows, investment leaves, and future patients die from diseases we never cured.'},
-    {tag:'The legal authority isn\'t there',text:'Domestic compulsory licensing has never been done in the US. The authority is contested. A ruling that overreaches the law will be reversed and make things worse.'}
-  ],
-  neutral:[
-    {tag:'Legal and ethical are separate questions',text:'Something can be ethically wrong without being legally actionable, and vice versa. This panel needs to be precise about which one it is actually ruling on.'},
-    {tag:'Has every other option been tried?',text:'Tiered pricing, subsidies, voluntary licensing these exist. Before we rule, has anyone genuinely tried them? The answer changes what intervention means.'},
-    {tag:'Both sides have a real point',text:'Patients are dying now. The pipeline matters for the future. A ruling that pretends one of those facts away will not hold up.'},
-    {tag:'This sets a precedent either way',text:'Finding wrongdoing sets one kind of precedent. Finding none sets another. Think carefully about which world you are creating before you decide.'}
-  ]
-};
+  state: {
+    step1: [
+      {tag:'I have people I can call right now', text:'I have been keeping three back channels open with contacts inside the other government. None of them have gone dark. Let me use them before we do something we cannot take back.'},
+      {tag:'A strike will cost us allies we have spent decades building', text:'I have spoken to four foreign ministers in the last hour. If we move without consulting them, we lose those relationships. That is a real cost that does not go away when this crisis is over.'},
+      {tag:'We do not know if their government ordered this', text:'Everything I know about their command structure suggests this may have been unauthorized. Striking back against a government that may not have ordered the attack puts us in a very different position morally and strategically.'},
+      {tag:'I am asking for 72 hours, not forever', text:'I am not saying stand down. I am saying do not close the door on diplomacy until we have actually tried it. Give me 72 hours to work the channels I have.'}
+    ],
+    step2: [
+      {tag:'Nuclear weapons have not been used in combat since 1945 for a reason', text:'Every government, including ours, has treated that line as real for 80 years. Using nuclear weapons now, even in response to an attack, changes the rules for everyone going forward.'},
+      {tag:'Other countries are watching how we handle this', text:'There are about 12 countries right now with the technical ability to build a nuclear weapon who have chosen not to. How we behave in this moment will factor into their calculations.'},
+      {tag:'Negotiating keeps more options open', text:'If we strike, the next move is either more escalation or backing down completely. If we hold and talk, we still have room to shape what happens next. That flexibility is worth something.'},
+      {tag:'Breaking the no-use norm has consequences beyond this crisis', text:'Every arms agreement and non-proliferation effort we are part of depends on the assumption that nuclear weapons are a genuine last resort. Using them here changes the foundation of all of that.'}
+    ],
+    step3: [
+      {tag:'I have specific people I can reach in the next 30 minutes', text:'This is not abstract. I have names and phone numbers. I am asking for the chance to make those calls before anything irreversible happens.'},
+      {tag:'The relationships we would lose took generations to build', text:'I have been doing this work for 30 years. What we could destroy in the next hour is not something we rebuild quickly. I want the President to understand that is a real loss, not a theoretical one.'},
+      {tag:'Talking is not the same as giving in', text:'Choosing to negotiate does not mean we are surrendering. It means we are keeping our options open while we get better information. That is what I am recommending.'},
+      {tag:'There is context the President may not have', text:'There are things happening in other capitals right now that do not show up in intelligence summaries. I want to make sure the President has that picture before making a final call.'}
+    ]
+  },
 
-const PHARMA_STEP2=[
-  {tag:'Count lives across both timelines',text:'Patients dying now under this price, versus patients who won\'t survive future diseases if the pipeline collapses. The most ethical outcome saves more lives total not just today\'s.'},
-  {tag:'Was there real harm with no alternative?',text:'If this pricing caused direct, identifiable deaths among people who had no other option, that is harm. Call it what it is.'},
-  {tag:'Access to survival is not a luxury',text:'If life saving treatment is a right and not a commodity, then pricing it out of reach is not an unfortunate market outcome. It is a violation.'},
-  {tag:'The long term consequences count too',text:'Ruling against the company might feel like justice today. But if it kills the next drug that saves a million people, that outcome is also a moral failure just a slower one.'},
-  {tag:'What does a just system do when markets fail people',text:'We built institutions like this panel precisely for moments when the market produces an outcome that kills people unnecessarily. This is that moment.'},
-  {tag:'Be honest about uncertainty before setting precedent',text:'This ruling governs future cases. If we are not certain about the ethics, the law, the downstream effects we should be more careful, not less.'}
-];
+  nsa: {
+    step1: [
+      {tag:'The same data has two different readings', text:'I have seen the underlying intelligence, not just the summary. There is a real alternate interpretation that points to a sensor error. We have not resolved that disagreement yet.'},
+      {tag:'One in five chance we are wrong is not a small number', text:'80% confidence sounds high until you think about what the 20% means here. Being wrong costs millions of lives. I do not think that uncertainty has been taken seriously enough in this room.'},
+      {tag:'There is something about the source that should have been mentioned', text:'The main source for the launch confirmation has a history of reliability problems. That information did not make it into the briefing that came to this room. I need to put it on the table now.'},
+      {tag:'I am asking for 20 minutes, not a delay indefinitely', text:'I want time to go back to the source and check the competing reading. Twenty minutes. If it confirms the threat, I will say so immediately.'}
+    ],
+    step2: [
+      {tag:'When you cannot undo a decision, you need to be more sure', text:'We make calls on uncertain information all the time. But when the mistake is permanent and the cost is catastrophic, the bar for how certain we need to be should go up. 80% does not clear that bar here.'},
+      {tag:'Getting it wrong because of bad intelligence has happened before', text:'I can point to specific cases where governments acted on intelligence that turned out to be wrong and started wars they did not want. My job is to make sure this room does not repeat that.'},
+      {tag:'The President needs to know what we actually know, including what we do not', text:'I am not here to make the decision easier. I am here to give an accurate picture. Right now the picture has real gaps in it and those gaps belong in this conversation.'},
+      {tag:'There are other options we have not put on the table yet', text:'Before we go to a nuclear response, I want to make sure we have actually looked at everything else. My team has been working on approaches that do not involve a missile launch. Those should be heard first.'}
+    ],
+    step3: [
+      {tag:'I know which mistake I can live with', text:'If I advise caution and the threat was real, that is a terrible outcome. But if I advise action and the intelligence was wrong, we have started something that cannot be stopped. I know which error is recoverable.'},
+      {tag:'My job is to tell you what is true, not what is convenient', text:'There is genuine uncertainty in this intelligence that has not been clearly stated in this room. I would not be doing my job if I let that pass.'},
+      {tag:'The President should know that my team disagrees on this', text:'I have an analyst with a fundamentally different read on the same data. I am not saying she is right. I am saying the President should know the disagreement exists before deciding.'},
+      {tag:'Give me the time to check this', text:'A short window to go back to the source. If it confirms the threat, I will say so right away. If it does not, we will have avoided a serious mistake.'}
+    ]
+  },
 
-const PHARMA_STEP3=[
-  {tag:'Keep a real patient in mind',text:'Someone found out this drug could save their life, then found out the price. That is the specific moment this panel is ruling on. Don\'t let it become an abstraction.'},
-  {tag:'This ruling carries your name',text:'The families who lost someone will read this finding. The companies will act on it. Whatever you decide, you are attached to it.'},
-  {tag:'Future patients are in this room too',text:'This ruling shapes the drugs that get developed, the prices future patients face, the access they have. We are deciding for people who aren\'t here yet.'},
-  {tag:'What kind of society are we choosing to be',text:'When the market kills people who didn\'t have to die, what does a just society do? The answer we give here is the answer to that question.'},
-  {tag:'Could you explain this to the families outside?',text:'When this is published, families who lost someone will read it. Whatever you decide make sure it\'s something you can explain to them, not just defend.'},
-  {tag:'Are you being honest about the costs of your position?',text:'Are you presenting the costs of your argument as honestly as its benefits? The people affected deserve a ruling that engaged with the full picture.'}
-];
+  transport: {
+    step1: [
+      {tag:'The evacuation plans are not realistic', text:'I have read them carefully. The infrastructure we would need to move people out of the blast zone does not exist at the scale those documents assume. The gap is significant.'},
+      {tag:'The numbers in those models represent real people', text:'I want to say the actual figures out loud because I think people stop feeling them very quickly. In a limited exchange, we are looking at roughly 3.4 million dead on our side in the first 72 hours.'},
+      {tag:'The people we are deciding about have no idea this meeting is happening', text:'About 800,000 people are in the projected target city right now. They are going about their day. They are who this order will actually affect.'},
+      {tag:'Our recovery systems are not built for this', text:'My department handles emergency response and logistics. I can tell you clearly that the systems we have are not equipped to handle what comes after a nuclear exchange, even a limited one.'}
+    ],
+    step2: [
+      {tag:'The phrase acceptable losses is doing a lot of work here', text:'Every time someone uses that phrase, I want us to stop and name what it actually means. Those are specific people in specific places. I have looked at the maps.'},
+      {tag:'The response infrastructure is not what the plans claim', text:'The transportation and emergency systems that are supposed to function after a nuclear event have not been maintained at the levels those plans assume. The difference between what is on paper and what actually exists is large.'},
+      {tag:'The follow-on effects are not in anyone briefing', text:'What happens to food supply, water treatment, hospitals, and emergency services across a multi-state area after this? Those numbers are not in the models this room is using.'},
+      {tag:'Authorizing a strike assumes we can handle what comes after', text:'You can give the order. But the communities and systems that have to deal with the aftermath had no say in this decision. That should be on the table alongside the military and diplomatic considerations.'}
+    ],
+    step3: [
+      {tag:'Someone needs to say the numbers out loud', text:'3.4 million in the first 72 hours if it stays limited. Around 180 million if it escalates to a full exchange. I know those numbers start to feel unreal when you say them. I am here to make sure they stay real.'},
+      {tag:'The recovery plan and the reality do not match', text:'I went through the emergency preparedness review last quarter. What our systems can actually do and what the post-strike plans assume are very different things. The President should know that before authorizing anything.'},
+      {tag:'The people who will bear the cost did not get a vote', text:'The residents of the target city, the first responders, the communities nearby. They are the ones who will live with whatever we decide. I want them to be visible in this conversation.'},
+      {tag:'I am not trying to block a decision, I am trying to complete it', text:'If the President decides to act, that is the President call to make. I am not here to override it. I am here to make sure the human cost is on the table with the same weight as everything else.'}
+    ]
+  },
 
-function getChoices(step, stance){
-  const s = game.scenario;
-  if(s === 'misfire'){
-    if(step===1) return NUCLEAR_STEP1[stance]||NUCLEAR_STEP1.neutral;
-    if(step===2) return NUCLEAR_STEP2;
-    return NUCLEAR_STEP3;
-  } else {
-    if(step===1) return PHARMA_STEP1[stance]||PHARMA_STEP1.neutral;
-    if(step===2) return PHARMA_STEP2;
-    return PHARMA_STEP3;
+  cia: {
+    step1: [
+      {tag:'I have doubts about where this intelligence came from', text:'The source behind the launch confirmation has a track record of problems. That did not make it into the briefing summary. The President needs to know it.'},
+      {tag:'My team has options that have not been mentioned yet', text:'We have been developing three approaches that could deal with the threat without a missile launch. None of them have come up in this conversation and I want them on the table before any final decision.'},
+      {tag:'This launch may not have been ordered by their government', text:'Our signals from the last 40 minutes suggest real confusion in their chain of command. A scenario where a rogue officer acted without authorization is not unlikely. That changes the picture significantly.'},
+      {tag:'This intelligence is being treated as more certain than it is', text:'I put this intelligence together. I know how it was gathered and where the gaps are. The way it is being presented in this room overstates what we actually know.'}
+    ],
+    step2: [
+      {tag:'My obligation is to give an accurate picture, not a comfortable one', text:'I am not here to tell people what they want to hear. I am here to describe what we actually know, including the parts that are uncertain. Right now there are important gaps.'},
+      {tag:'Acting on bad intelligence has led to serious mistakes before', text:'There are documented cases where governments launched operations based on intelligence that turned out to be wrong. The patterns in those cases concern me about this one.'},
+      {tag:'The non-military options keep more paths open', text:'A nuclear response closes off almost everything else permanently. The options my team has built keep choices open and do not trigger the kind of escalation a strike would. They deserve a hearing.'},
+      {tag:'The President was not given the full context', text:'Someone decided what to include in the summary and left out the source reliability issue. I am correcting that now because it affects how this intelligence should be weighed.'}
+    ],
+    step3: [
+      {tag:'Give me ten minutes before the final call', text:'Let me walk the President through what my team has developed. If the decision is still to strike after that, I will have done my job. But I need those ten minutes.'},
+      {tag:'We are not at last resort yet', text:'Last resort means every other option has genuinely been tried or ruled out. We are not there. We have options we have not attempted and an intelligence picture that has not been fully resolved.'},
+      {tag:'I produced this intelligence and I have to flag its limits', text:'That means I am also responsible for being honest about where it falls short. The picture is not as clean as this room has been led to believe.'},
+      {tag:'If the rogue commander reading is right, this is a different situation entirely', text:'Launching a nuclear response against a government that did not order the attack is not the same as retaliating against one that did. That distinction matters enormously.'}
+    ]
+  },
+
+  jcs: {
+    step1: [
+      {tag:'We are ready and the window is open right now', text:'My staff has had strike options prepared since the alert came in. The assets are in position and we can move quickly. That window does not stay open indefinitely.'},
+      {tag:'Every minute we wait narrows our options', text:'The other side is not sitting still. Every minute we spend in this room is a minute they are using to prepare for what comes next. Delay has real operational costs.'},
+      {tag:'At some point more deliberation becomes a decision by default', text:'I have been in situations like this before. The instinct to ask for one more confirmation is understandable. But there is a point where that instinct costs us the window entirely.'},
+      {tag:'My people need to know what we are doing', text:'I have senior officers at their stations right now waiting for direction. The uncertainty itself has consequences. Whatever we decide, the chain of command needs to know quickly.'}
+    ],
+    step2: [
+      {tag:'The legal framework for responding is clear', text:'We were attacked with a nuclear weapon. The right to a proportional response under international law is well established. I have reviewed the targeting options with our legal team and they are within those parameters.'},
+      {tag:'The whole point of deterrence is that it has to be credible', text:'Countries do not launch first strikes against us because they believe we will respond. If we absorb this and do nothing, we are telling the world that belief is wrong. The long term consequences of that are serious.'},
+      {tag:'We have trained for exactly this', text:'Every exercise, every war game, every contingency review we have done was preparation for a moment like this one. That preparation exists. The question is whether we use it.'},
+      {tag:'Choosing not to respond is also a choice with consequences', text:'There is no neutral option here. Not responding is a strategic decision with long term costs just as responding is. I want the room to weigh both sides of that honestly.'}
+    ],
+    step3: [
+      {tag:'I need to know what to tell my commanders', text:'I have officers waiting for a call. I am not asking for a perfect decision. I am asking for a clear one. Whatever the President decides, I will carry it out. I just need to know what it is.'},
+      {tag:'The lesson from every exercise is that timing is the hardest part', text:'We are getting close to the point where the operational situation starts forcing the decision for us. Making it deliberately while we still have that choice is better than having it made for us.'},
+      {tag:'I am not asking for a war, I am giving my honest assessment', text:'My professional view is that not responding creates more long term danger than responding does. I could be wrong. But that is my honest read and the President deserves to hear it.'},
+      {tag:'Whichever way it goes, I will carry out the decision', text:'I am not going to keep arguing for one outcome after the President decides. But before that decision is made, I need the President to hear clearly what the military assessment is.'}
+    ]
+  },
+
+  president: {
+    step1: [
+      {tag:'I have read what everyone said', text:'I went through each argument carefully. There are real points on both sides and I am not going to pretend otherwise.'},
+      {tag:'The uncertainty is what I keep coming back to', text:'We do not have certainty here. That does not mean we cannot decide. But the decision has to account for the real possibility that we are wrong.'},
+      {tag:'I have heard the case for acting and the case for waiting', text:'Both are serious arguments made by serious people. I have them both in my head and I need to weigh them honestly.'},
+      {tag:'The final call belongs to me', text:'I have heard from everyone in this room and I appreciate that. When I give my verdict, it is mine alone. I want to be clear that I understand that.'}
+    ],
+    step2: [
+      {tag:'Have we actually tried everything else?', text:'That question matters to me. Have we genuinely exhausted our other options, or are we at last resort because the clock is running out and we are treating those two things as the same?'},
+      {tag:'I am thinking about people on both sides', text:'The people in the target city if we strike. The people here if we do not respond and the threat continues. Both are real and I am not going to pretend only one of them counts.'},
+      {tag:'What happens after matters as much as what happens now', text:'A strike does not end the crisis. It starts a different phase of it. My decision needs to account for what the next few days look like, not just the next few minutes.'},
+      {tag:'How we respond here will shape future situations', text:'How we handle this moment will affect how adversaries think about nuclear use going forward. That is one of the real stakes here and it belongs in my reasoning.'}
+    ],
+    step3: [
+      {tag:'I am ready to give my decision', text:'I have heard everyone. I have thought through this as carefully as I can in the time we have. What follows is my verdict and the reasoning behind it.'},
+      {tag:'I want to name what weighed on me most', text:'Before I announce my decision, I want to say which argument I found hardest to set aside. I think the room deserves to know how I got here.'},
+      {tag:'I am not certain this is right', text:'I am going to make a decision because that is what this situation requires. But I want to be honest that I do not have certainty right now.'},
+      {tag:'I have thought about what I can live with', text:'Whatever I decide in the next few minutes, I will carry it. I have sat with that. I am ready to announce my verdict.'}
+    ]
+  },
+
+  'president-pharma': {
+    step1: [
+      {tag:'I have read every argument that came before this panel', text:'There are real points on both sides and I want to be clear I have taken them seriously. What follows is where I landed after working through all of them.'},
+      {tag:'The two hardest arguments to weigh against each other were patient harm and pipeline risk', text:'I did not find a way to make either one disappear. My ruling has to engage with both honestly.'},
+      {tag:'I want to be clear about what we are and are not deciding', text:'There is a difference between an ethical finding and a legal one. I want to be precise about which question this panel is actually answering.'},
+      {tag:'Whatever I find here will be used in future cases', text:'I have tried to write a ruling I would be comfortable seeing applied in situations I have not thought of yet. That has shaped how I approached this.'}
+    ],
+    step2: [
+      {tag:'I asked three questions to get to my finding', text:'Was there identifiable harm? Did those harmed have real alternatives? Were there other ways the company could have achieved the same business outcome? I worked through each one.'},
+      {tag:'Acting within the law and acting ethically are not the same thing', text:'The company did not break any laws. That matters. But my job as chair of an ethics panel is to evaluate conduct against ethical standards, not just legal ones. Those two questions point in different directions here.'},
+      {tag:'I took the pipeline argument seriously before coming to a conclusion', text:'I read the economics research. I understand that intervention has downstream costs. My ruling reflects that I did not dismiss that concern, even if I did not find it decisive.'},
+      {tag:'I am ruling on this specific decision, not on the whole industry', text:'My finding is about the specific pricing choice made in this case. It is not a ruling on pharmaceutical pricing as a category. That distinction matters for how this gets used going forward.'}
+    ],
+    step3: [
+      {tag:'I am ready to give the panel finding', text:'I have heard from everyone. I have worked through the arguments. What follows is the official finding along with the reasoning behind it.'},
+      {tag:'I want to acknowledge this was not a clear case', text:'Before I give the ruling, I want to say for the record that there are legitimate arguments on both sides. I do not want that acknowledged only in private.'},
+      {tag:'This finding does not resolve every question this situation raises', text:'There are broader policy questions here that are outside what this panel can address. I want to be honest about the limits of what we are deciding today.'},
+      {tag:'I have tried to write something I can explain step by step', text:'Not something that confirms what either side wanted. Something I can walk through clearly with someone who disagrees with it and still stand behind.'}
+    ]
+  },
+
+  'patient-adv': {
+    step1: [
+      {tag:'I want to start with one specific person', text:'Her name was Andrea. She was 34, had a husband and two kids in Ohio. She died 11 months ago because her insurance did not cover this drug and she could not afford $180,000. She is the reason I am in this room.'},
+      {tag:'The drug exists. The patients exist. The only thing in the way is the price.', text:'There is no shortage. There is no technical barrier. The only thing between a patient and this treatment is a number that a pricing committee decided on. That is what this panel is being asked to evaluate.'},
+      {tag:'About 40 people a month are dying because they cannot afford this', text:'That is not a projection. That is from hospital records and death certificates. 40 people a month, from a treatable condition, because of a pricing decision.'},
+      {tag:'I am not asking the company to lose money', text:'I am asking this panel to say that pricing a treatment at a level that is deliberately out of reach for uninsured patients is ethically wrong. That is a narrower claim than it might sound.'}
+    ],
+    step2: [
+      {tag:'Should access to a treatment that keeps you alive depend on your income?', text:'That is the actual question in front of us. This pricing structure says yes. I think this panel should say clearly whether it agrees with that.'},
+      {tag:'The harm here is documented, not theoretical', text:'I have submitted patient records, hospital data, and death certificates. This is not a downstream effect or a projection. It is happening now and I have the paperwork.'},
+      {tag:'The same company charges $8,200 in Canada for the same drug', text:'Canada pays $8,200 per course. Germany pays $7,400. The US price is $180,000. The research and development costs do not explain a price that is 20 times higher to the same drug in the same year.'},
+      {tag:'Their own internal documents do not describe this as cost recovery', text:'In a related lawsuit, internal communications described the US price as capturing maximum value in an unregulated market before the patent runs out. That is what they said internally. I would like the panel to weigh that.'}
+    ],
+    step3: [
+      {tag:'I want to come back to Andrea one more time', text:'She had a doctor ready to prescribe. A pharmacy ready to dispense. She died because the number on the price sheet was too high. That is the specific thing I am asking this panel to evaluate.'},
+      {tag:'There are 23 families following this proceeding closely', text:'They lost someone to this disease in the last six months. I want this panel to know that those families are watching, because I think it matters to how carefully we reason through this.'},
+      {tag:'A vague finding does not help anyone', text:'Whatever this panel decides, I am asking that the finding be specific enough to create real accountability. A general statement of concern changes nothing.'},
+      {tag:'The other side has very good lawyers here', text:'I want to make sure this panel gives equal weight to the people who are not represented by counsel in this room.'}
+    ]
+  },
+
+  'pharma-exec': {
+    step1: [
+      {tag:'This drug took 14 years and cost $2.6 billion to develop', text:'I want to start with the actual numbers. 14 years. $2.6 billion in total investment. Eight earlier candidates that failed before this one succeeded. The price reflects that.'},
+      {tag:'The patent window is what makes this investment possible', text:'Without the ability to earn a return during the patent period, the money that funded this drug does not exist. That is not an argument in the abstract. It is how this drug got developed.'},
+      {tag:'The patent expires in 2031 and the price will drop sharply after that', text:'When the patent runs out, generic manufacturers can enter the market. The price drops to roughly $400 per course. That is the system working as designed.'},
+      {tag:'We have a program that helped nearly 2,000 patients last year who could not afford the list price', text:'That has not come up in this proceeding. Last year we provided 1,847 courses of treatment at no cost through our patient assistance program. That program exists because of the margin the list price generates.'}
+    ],
+    step2: [
+      {tag:'Most drug candidates never make it to market', text:'Between 2008 and 2018, we evaluated 340 compounds in this area. Eight made it to late stage trials. Two were approved. One became viable commercially. The price on the one that worked has to cover the cost of the 338 that did not.'},
+      {tag:'A ruling of wrongdoing will affect future investment', text:'Three investors have already told us that a finding of wrongdoing in this case will affect their participation in our next funding round. Those conversations have happened. This is not a hypothetical.'},
+      {tag:'The data on what happens to drug development after forced licensing is not good', text:'Investment in drug development declines in areas where pricing pressure increases. That has been observed in comparable markets. I would like the panel to see that data before making a finding.'},
+      {tag:'US profits fund reduced-price access in 47 lower income countries', text:'Our global pricing strategy uses the margin from US sales to make this treatment available at or below cost in 47 countries. If the US margin goes away, so do those programs.'}
+    ],
+    step3: [
+      {tag:'I understand why the price looks wrong to the families here', text:'I am not dismissing that. I am saying that if the development of this drug had not been funded, those patients also would have had no treatment. That tradeoff is real.'},
+      {tag:'I want to be honest about the practical effect of a wrongdoing finding', text:'A finding of wrongdoing triggers renegotiation clauses in 14 of our existing licensing agreements. The effect on our development pipeline is significant and I can show the numbers.'},
+      {tag:'We are willing to expand our patient assistance program', text:'I am authorized to offer an expansion that would cover 85% of uninsured applicants below 400% of the federal poverty line. That is a concrete change that helps real people without a wrongdoing finding.'},
+      {tag:'Compare this to the actual alternative, not an ideal', text:'The question is not whether this drug could have existed at an affordable price. The question is whether it would have existed at all without this pricing structure. That is the comparison that matters.'}
+    ]
+  },
+
+  bioethicist: {
+    step1: [
+      {tag:'I want to name what kind of question this actually is', text:'This is primarily an ethics question. Both sides have been making their case mostly in legal and economic terms. I think we need to step back and be clear about what kind of problem we are actually trying to solve.'},
+      {tag:'Both sides are making legitimate points', text:'I have worked in this area for 20 years and neither side is being dishonest. The patient harm is real. The risk to future drug development is real. A useful ruling has to take both seriously.'},
+      {tag:'What is legal and what is ethical are not the same thing here', text:'Something can be lawful and still be wrong. This panel needs to be precise about which of those questions it is actually answering, because they may point in different directions.'},
+      {tag:'There are three different ethical frameworks and they give different answers', text:'A framework focused on outcomes, one focused on rights, and one focused on fairness would each lead to a different finding here. I think the panel should be explicit about which one it is using.'}
+    ],
+    step2: [
+      {tag:'The outcomes calculation is genuinely uncertain', text:'Saving 40 lives a month now versus potentially slowing future drug development is not an easy calculation. It requires assumptions that researchers actually disagree about. Anyone claiming the answer is obvious is not engaging with the full picture.'},
+      {tag:'A rights-based view does point in a clear direction', text:'If you believe access to a treatment that keeps you alive is a right and not a privilege, then pricing it out of reach is a violation of that right, regardless of whether it is legal or profitable.'},
+      {tag:'There is a fairness question about whose voice was heard in this decision', text:'The patients most harmed by this pricing had the least say in the system that produced it. A fairness framework takes that kind of structural exclusion seriously, and I think this panel should too.'},
+      {tag:'The framework the panel uses will shape the finding', text:'If this panel uses an outcomes framework it might reach a different conclusion than if it uses a rights framework. I think we should name which one we are applying before we announce anything.'}
+    ],
+    step3: [
+      {tag:'The ruling should name which ethical framework it is applying', text:'Whatever we find, I want the reasoning to be explicit about why. Not just what we decided, but from which ethical starting point. That is what makes a ruling useful for future cases.'},
+      {tag:'I want to be honest that this is not a clear case', text:'There is not a clean answer here. The honest thing is to say so and then explain carefully why we landed where we did despite the genuine tension.'},
+      {tag:'A narrow finding and a broad one have very different implications', text:'A finding about this specific pricing decision is very different from a finding about pharmaceutical pricing generally. I want us to be careful about which one we are actually making.'},
+      {tag:'My suggestion is to name both the immediate harm and the broader problem', text:'Find on the specific conduct. Acknowledge the systemic pressure that produced it. And be honest that fixing the broader problem requires action beyond what this panel can do.'}
+    ]
+  },
+
+  economist: {
+    step1: [
+      {tag:'I want to start with what the data actually shows', text:'In countries that have implemented forced licensing for branded drugs, clinical trial activity in affected areas dropped by an average of 23% over the following five years. That is the observed pattern, not a projection.'},
+      {tag:'The Canada price difference does not mean what people think it means', text:'Canada has a government board that negotiates and caps drug prices by law. The US does not. The $180,000 US price and the $8,200 Canadian price reflect two different regulatory systems, not evidence that the company is purely extracting money here.'},
+      {tag:'The pricing math is more complicated than it appears', text:'For every drug that reaches patients, a company has typically funded eight or more that failed. Pricing the successful drug to recover the cost of the whole pipeline is standard across the industry. That does not make it painless, but it is not simply greed.'},
+      {tag:'The list price and the effective price are not the same for everyone', text:'If 60% of uninsured patients are getting the drug through assistance programs, the actual price those patients pay is not $180,000. Any honest analysis has to use real access numbers, not just the sticker price.'}
+    ],
+    step2: [
+      {tag:'The people who pay the cost of this ruling will not show up in any hearing', text:'The patients who die in 2035 from a disease we never developed a drug for because this ruling discouraged investment will not appear in front of any panel. But they are real and they are part of this calculation.'},
+      {tag:'I modeled two scenarios and I want to share the numbers', text:'Scenario one: this panel finds wrongdoing, a generic enters at $400, short term access improves. Scenario two: investment in this area drops 18% over ten years, roughly 12,000 additional deaths from diseases that would have been treated by drugs that were never developed. That is the tradeoff.'},
+      {tag:'A genuine outcomes analysis counts all the outcomes', text:'The people who benefit from this ruling are visible and present. The people harmed by its effect on future development are statistical and distant. Counting only the visible ones is not a complete analysis.'},
+      {tag:'There are better ways to improve access than a wrongdoing finding', text:'Federal price negotiation, expanded Medicaid, more public investment in research. These are tools that could improve access without the pipeline disruption a wrongdoing finding creates. I think this panel should say so explicitly.'}
+    ],
+    step3: [
+      {tag:'I want to be clear about what the data shows and what it does not', text:'The data shows that post-intervention pipeline disruption is real. It does not show that the specific harm in this case was acceptable. Those are two separate claims and I am making both of them.'},
+      {tag:'The 40 deaths per month figure is real and it matters', text:'I am not dismissing the patient harm. I am saying a ruling that only looks at immediate access without modeling the downstream effects is not a complete analysis. The panel should have the complete picture.'},
+      {tag:'Find on the specific conduct but acknowledge the bigger problem', text:'Find that this specific pricing decision went beyond what is ethically acceptable. But also say clearly that the structural problem here requires a legislative solution, not just a ruling against one company.'},
+      {tag:'Whatever the panel decides, it should say what it expects to change', text:'A finding of wrongdoing without a clear expected outcome is not very useful. I would like the ruling to specify what improvement it expects to see, over what timeline, and how that will be measured.'}
+    ]
+  },
+
+  legislator: {
+    step1: [
+      {tag:'I have been to funerals in my district because of this', text:'40 families in my district attended funerals in the last six months. I have sat with some of them. I am in this room because those people elected me to be here and I am not going to let this stay theoretical.'},
+      {tag:'847 people called my office about this drug in the last 18 months', text:'Mostly asking how to get financial help, how to appeal insurance denials, how to find clinical trials. That is what this pricing decision looks like at the ground level.'},
+      {tag:'I ran on healthcare access and I am going to say what I actually think', text:'I do not think a company should be able to price a treatment for a terminal illness at a level that is out of reach for anyone without good employer insurance. I believe that is wrong.'},
+      {tag:'There are two bills in committee that this proceeding affects', text:'I want to be transparent about that. A clear finding either way will have implications for pending legislation. I think the panel should know the stakes beyond this specific case.'}
+    ],
+    step2: [
+      {tag:'When the market fails people, elected officials are supposed to step in', text:'When a market produces an outcome that kills people who could have been saved, intervention is not radical. It is what democratic accountability looks like in practice.'},
+      {tag:'The legal basis for intervention exists, it just has not been used', text:'Federal law has a provision that allows the government to step in on patents developed with federal funding. This drug received $230 million in government research grants. The legal basis is there.'},
+      {tag:'The company own internal documents say this was about maximizing value, not covering costs', text:'In a related lawsuit, internal communications described the US pricing decision as designed to capture maximum value in an unregulated market before the patent expires. That is the company description of its own reasoning.'},
+      {tag:'The people dying right now cannot wait for a legislative process', text:'I have co-sponsored three bills that would address the underlying problem. None of them have passed. The people dying from this disease right now cannot wait for Congress to get its act together. That is why this panel matters.'}
+    ],
+    step3: [
+      {tag:'A clear finding means roughly 480 more patients treated per year', text:'If this panel finds wrongdoing and the company expands its assistance program as it has offered, approximately 480 additional patients per year would get treatment they are not getting now. That is the concrete effect of a clear finding.'},
+      {tag:'My constituents are not asking for everything, they are asking for acknowledgment', text:'They are not demanding free drugs or a nationalized system. They want a clear statement from an authoritative body that what happened to their family members was wrong. That matters to them.'},
+      {tag:'The pipeline argument is being overstated', text:'The companies making this argument have reported record profits every quarter for the past six years. A finding of wrongdoing in one case does not end pharmaceutical investment. The claim that it would is not supported by the data.'},
+      {tag:'I will use whatever this panel decides', text:'If you find wrongdoing, I will cite it in committee. If you find no wrongdoing, I will use that as the case for why legislative action is the only remaining path. Either way this proceeding has real consequences.'}
+    ]
+  },
+
+  legal: {
+    step1: [
+      {tag:'I want to be clear about what the law actually allows here', text:'Forced licensing for domestic health emergencies has never been used in the US. The legal provision that might support it exists but has never been tested in court. This panel should understand what ground it is standing on.'},
+      {tag:'The legal authority is shakier than either side has suggested', text:'There are three legal theories that could support intervention here. Each of them has real problems. I want to walk through each one so this panel knows what legal exposure it is creating.'},
+      {tag:'This panel has ethical authority even where legal authority is unclear', text:'Even if the law does not currently support a forced licensing order, this panel can make a clear ethical finding that names the conduct as wrong. Those are two different things and both have real value.'},
+      {tag:'A ruling that goes further than the law supports will get reversed', text:'I have seen this pattern before. An ethics panel makes a bold finding, it gets challenged in court, it gets reversed, and the precedent that survives is weaker than if the panel had been more careful. I would like to avoid that.'}
+    ],
+    step2: [
+      {tag:'There is a federal law that might apply here, but it is untested', text:'The Bayh-Dole Act allows the government to step in on patents from federally funded research if the contractor has not made the invention reasonably available. This drug got $230 million in federal grants. The provision applies in theory. In practice, the case law is very thin.'},
+      {tag:'International trade law has allowed forced licensing in health crises before, but not here', text:'The WTO rules allow countries to issue compulsory licenses during public health emergencies. The US has supported other countries doing this. We have never applied the same logic domestically. There is a reasonable argument that we should.'},
+      {tag:'Finding ethical wrongdoing without legal wrongdoing is a real option', text:'If this panel finds the conduct was ethically wrong but that the law does not currently provide a remedy, that creates a useful record for legislators without the uncertain legal exposure that a wrongdoing finding would generate. That might be the more durable path.'},
+      {tag:'A forced licensing order would immediately go to court', text:'If this panel triggers a compulsory licensing order, the company files in federal court within 48 hours. A temporary stay is almost certain. The practical effect is that patients keep waiting while the legal battle plays out. A narrower finding might actually help people faster.'}
+    ],
+    step3: [
+      {tag:'My recommendation is a finding that is honest about both the ethics and the law', text:'Find the conduct ethically wrong. Say clearly that the current legal framework does not provide an adequate remedy. Recommend specific legislation. That sequence is accurate and it will hold up.'},
+      {tag:'I want the panel to understand the legal risk of a broad finding', text:'If this panel goes broad enough to trigger compulsory licensing, the legal challenge starts immediately and a stay is likely. A narrower ethical finding might actually do more for patients in the short term.'},
+      {tag:'The gap between what is legal and what is ethical is itself worth naming', text:'If the conduct is clearly wrong but the law has no remedy, saying so explicitly is useful. It gives legislators a clear record to work from, which is more honest than pretending the gap does not exist.'},
+      {tag:'Whatever the panel finds, the reasoning needs to be specific', text:'Vague findings get used to support arguments they were never meant to support. I want this panel reasoning to be specific enough that it can only be cited for what it actually says.'}
+    ]
   }
+
+};
+
+
+function getChoices(step, stance, roleId) {
+  // Map president role to scenario-specific key
+  let key = roleId;
+  if (roleId === 'president' && game.scenario === 'pharma') key = 'president-pharma';
+
+  const roleData = ROLE_CHOICES[key];
+  if (roleData) return roleData['step' + step];
+
+  // Fallback generic choices if role not found
+  const fallback = {
+    step1: {
+      strike: [
+        {tag:'The case for acting now', text:'Waiting is not a neutral choice. There are real costs to delay and I think we need to name them clearly before the decision is made.'},
+        {tag:'The status quo is not sustainable', text:'The current situation causes harm to real people. The question is not whether to act but whether we have the courage to do it.'},
+        {tag:'We have the authority and the means', text:'We have the legal basis and the practical ability to act here. The only thing missing is the decision.'},
+        {tag:'Others in this room are understating the urgency', text:'I want to be direct that I think the case for action is stronger than the room has heard so far.'}
+      ],
+      restrain: [
+        {tag:'The case for holding back', text:'Acting now forecloses options we might want later. I think the room should hear that argument more fully before we proceed.'},
+        {tag:'We have not exhausted the alternatives', text:'There are approaches that have not been tried. Before we do something we cannot undo, we should try them.'},
+        {tag:'The risks of acting are being underweighted', text:'I want to make sure the costs of action are getting the same scrutiny as the costs of inaction.'},
+        {tag:'The uncertainty here is significant', text:'We are making a major decision on incomplete information. I think we should name that clearly.'}
+      ],
+      neutral: [
+        {tag:'Both sides have a real point', text:'I am not ready to land firmly on either side yet. I think the room would benefit from hearing both arguments more fully.'},
+        {tag:'There are things we have not considered', text:'Before we decide, I want to make sure we have genuinely thought through the options we have not named yet.'},
+        {tag:'The framing of the question matters', text:'How we define the decision shapes what options are available. I want to push on the framing before we get to the verdict.'},
+        {tag:'I need more before I can advise clearly', text:'My honest position is that I do not have enough information yet to give confident advice. Here is what I think we need.'}
+      ]
+    },
+    step2: [
+      {tag:'The consequences on both sides matter', text:'Whatever we decide, we are responsible for the full range of outcomes, not just the ones we intended. I want the room to take that seriously.'},
+      {tag:'There is a standard we should be holding ourselves to', text:'I think we know what the right thing to do is here. The question is whether we are willing to do it.'},
+      {tag:'The uncertainty changes the calculus', text:'When we are not sure, the bar for irreversible action should be higher. That is just basic risk management applied to ethics.'},
+      {tag:'The people most affected have the least voice here', text:'I want to make sure we are thinking about who is not in this room and whose interests are not naturally represented by the people who are.'}
+    ],
+    step3: [
+      {tag:'Whatever we decide we carry it', text:'I want the room to sit with the weight of this before we finalize anything. There is no path through this that costs nothing.'},
+      {tag:'We should be able to explain this to the people it affects', text:'A decision we cannot explain clearly to the people who bear its consequences is a decision we have not thought through carefully enough.'},
+      {tag:'History will have a view on this moment', text:'I do not say that to be dramatic. I say it because I think the long view is genuinely useful here.'},
+      {tag:'I think we know what the right thing is', text:'My honest belief is that if we set aside everything except what we actually think is right, most of us land in the same place.'}
+    ]
+  };
+
+  if (step === 1) return fallback.step1[stance] || fallback.step1.neutral;
+  if (step === 2) return fallback.step2;
+  return fallback.step3;
 }
+
+
 
 /* ── STATE ─────────────────────────────────────────────────────── */
 let game={scenario:null,players:[],currentTurn:0,currentRoleId:null,presidentResponse:'',verdict:'',scores:null,_presVerdict:null};
@@ -610,9 +870,9 @@ function goToArgument(){
   document.getElementById('step3').style.display='none';
   document.getElementById('arg-summary').style.display='none';
   document.getElementById('btn-submit-arg').disabled=true;
-  buildChoices('choices-step1',getChoices(1,role.stance),1);
-  buildChoices('choices-step2',getChoices(2,role.stance),2);
-  buildChoices('choices-step3',getChoices(3,role.stance),3);
+  buildChoices('choices-step1',getChoices(1,role.stance,role.id),1);
+  buildChoices('choices-step2',getChoices(2,role.stance,role.id),2);
+  buildChoices('choices-step3',getChoices(3,role.stance,role.id),3);
   show('s-argument');
 }
 
@@ -779,13 +1039,13 @@ function goToOutcome(){
       // Planet explosion
       document.getElementById('outcome-eyebrow').textContent='The Consequence';
       document.getElementById('outcome-title').textContent='RETALIATION AUTHORIZED';
-      document.getElementById('outcome-subtitle').textContent='The retaliatory strike was launched. What followed changed the world forever.';
+      document.getElementById('outcome-subtitle').textContent='Everyone died';
       animatePlanetExplosion(ctx,canvas);
     } else {
       // Planet safe
       document.getElementById('outcome-eyebrow').textContent='The Consequence';
       document.getElementById('outcome-title').textContent='DIPLOMACY ORDERED';
-      document.getElementById('outcome-subtitle').textContent='Restraint held. Back channels opened. The world held its breath and survived.';
+      document.getElementById('outcome-subtitle').textContent='Everyone survived.';
       animatePlanetSafe(ctx,canvas);
     }
   } else {
@@ -800,7 +1060,7 @@ function goToOutcome(){
       // Person dying
       document.getElementById('outcome-eyebrow').textContent='The Ruling';
       document.getElementById('outcome-title').textContent='COMPANIES CLEARED';
-      document.getElementById('outcome-subtitle').textContent='The panel found no wrongdoing. The drug remained unaffordable. The dying continued.';
+      document.getElementById('outcome-subtitle').textContent='The panel found no wrongdoing. The drug remained unaffordable.';
       animatePersonDying(ctx,canvas);
     }
   }
@@ -839,7 +1099,7 @@ function animatePlanetExplosion(ctx,canvas){
         x: cx+Math.cos(angle)*dist,
         y: cy+Math.sin(angle)*dist,
         vx: Math.cos(angle)*speed*(0.7+Math.random()*0.6),
-        vy: Math.sin(angle)*speed*(0.7+Math.random()*0.6) (burst?2:0.5),
+        vy: Math.sin(angle)*speed*(0.7+Math.random()*0.6) - (burst?2:0.5),
         rot: Math.random()*Math.PI*2,
         rotV: (Math.random()-0.5)*0.15,
         r: burst ? (6+Math.random()*18) : (3+Math.random()*10),
@@ -861,7 +1121,7 @@ function animatePlanetExplosion(ctx,canvas){
         x: cx+(Math.random()-0.5)*pr*2,
         y: cy+(Math.random()-0.5)*pr*2,
         vx: Math.cos(angle)*speed,
-        vy: Math.sin(angle)*speed (intense?1:0),
+        vy: Math.sin(angle)*speed - (intense?1:0),
         r: intense ? (2+Math.random()*5) : (1+Math.random()*3),
         hue: Math.random()*50,          // orange-red
         life:1,
@@ -898,7 +1158,7 @@ function animatePlanetExplosion(ctx,canvas){
     // Stars
     stars.forEach(s=>{
       const twinkle = 0.3+0.7*Math.abs(Math.sin(t*s.speed+s.base*10));
-      const hide = Math.max(0, 1 glowAmt*1.4); // stars fade as sky brightens
+      const hide = Math.max(0, 1 - glowAmt*1.4); // stars fade as sky brightens
       ctx.globalAlpha = twinkle * hide;
       ctx.fillStyle='white';
       ctx.beginPath();ctx.arc(s.x,s.y,s.r,0,Math.PI*2);ctx.fill();
@@ -910,7 +1170,7 @@ function animatePlanetExplosion(ctx,canvas){
     const intact = explodePhase < 1;
 
     if(intact){
-      const scale = 1 explodePhase*0.25;
+      const scale = 1 - explodePhase*0.25;
       ctx.save();
       ctx.translate(cx,cy);
       ctx.scale(scale,scale);
@@ -1136,7 +1396,7 @@ function animatePlanetExplosion(ctx,canvas){
       ctx.textAlign='center';
       ctx.shadowColor='rgba(255,80,0,0.9)';
       ctx.shadowBlur=18;
-      ctx.fillText('MUTUAL ASSURED DESTRUCTION',cx,H-40);
+      ctx.fillText('KABOOM',cx,H-40);
       ctx.shadowBlur=0;
       ctx.restore();
     }
@@ -1207,7 +1467,7 @@ function animatePlanetSafe(ctx,canvas){
       ctx.fillText('CRISIS AVERTED',cx,H-50);
       ctx.font='12px IBM Plex Sans, sans-serif';
       ctx.fillStyle='#aaccee';
-      ctx.fillText('Diplomacy held. The world continues.',cx,H-28);
+      ctx.fillText('World is saved.',cx,H-28);
       ctx.globalAlpha=1;
     }
 
