@@ -136,6 +136,7 @@ canvas#outcome-canvas{border-radius:8px;display:block;max-width:100%}
 <div class="page">
 <div class="topbar">
   <span class="topbar-logo">// The Situation Room</span>
+
 </div>
 
 <!-- SETUP -->
@@ -990,111 +991,132 @@ function animatePharmacistJail(ctx,canvas){
 function animatePersonDying(ctx,canvas){
   const W=canvas.width,H=canvas.height;
   let t=0;
-  // hospital room feel
+  const ekgHistory=[];
+  const EKG_LEN=220;
 
-  function easeIn(v){return v*v;}
+  function getBPM(frame){
+    if(frame>=420)return 0;
+    return Math.max(0,72-frame*0.171);
+  }
+
+  function getEKGSample(frame){
+    const bpm=getBPM(frame);
+    if(bpm===0)return 0;
+    const period=Math.max(8,60/(bpm/60));
+    const phase=(frame%period)/period;
+    const amp=bpm/72;
+    if(phase<0.05)return Math.sin(phase/0.05*Math.PI)*22*amp;
+    if(phase<0.08)return -Math.sin((phase-0.05)/0.03*Math.PI)*8*amp;
+    if(phase<0.12)return Math.sin((phase-0.08)/0.04*Math.PI)*30*amp;
+    if(phase<0.18)return -Math.sin((phase-0.12)/0.06*Math.PI)*5*amp;
+    return Math.sin(phase*Math.PI*2)*1.5*amp;
+  }
 
   function draw(){
     ctx.clearRect(0,0,W,H);
-    // dim hospital bg
-    const fade=Math.min(t/300,1);
-    const bgR=Math.floor(30-fade*20),bgG=Math.floor(28-fade*18),bgB=Math.floor(35-fade*20);
-    ctx.fillStyle=`rgb(${bgR},${bgG},${bgB})`;ctx.fillRect(0,0,W,H);
 
-    // hospital bed
-    ctx.fillStyle='#3a3a4a';ctx.beginPath();ctx.roundRect(W/2-130,H*0.5,260,70,6);ctx.fill();
-    ctx.fillStyle='#4a4a5a';ctx.beginPath();ctx.roundRect(W/2-120,H*0.45,240,30,4);ctx.fill();
-    // pillow
-    ctx.fillStyle=`rgb(${Math.floor(200-fade*120)},${Math.floor(198-fade*120)},${Math.floor(210-fade*120)})`;
-    ctx.beginPath();ctx.roundRect(W/2-70,H*0.43,140,30,8);ctx.fill();
+    // bg
+    ctx.fillStyle='#181820';ctx.fillRect(0,0,W,H);
+    ctx.fillStyle='#1e1e2a';ctx.fillRect(0,0,W,H*0.72);
+    ctx.fillStyle='#14141c';ctx.fillRect(0,H*0.72,W,H*0.28);
+    ctx.strokeStyle='#1a1a24';ctx.lineWidth=1;
+    for(let i=0;i<W;i+=50){ctx.beginPath();ctx.moveTo(i,H*0.72);ctx.lineTo(i,H);ctx.stroke();}
+    for(let j=H*0.72;j<H;j+=50){ctx.beginPath();ctx.moveTo(0,j);ctx.lineTo(W,j);ctx.stroke();}
+    const lightG=ctx.createRadialGradient(W/2,0,0,W/2,0,260);
+    lightG.addColorStop(0,'rgba(200,210,255,0.06)');lightG.addColorStop(1,'rgba(0,0,0,0)');
+    ctx.fillStyle=lightG;ctx.fillRect(0,0,W,H);
 
-    // person lying — body
-    const bAlpha=Math.max(0.1,1-fade*0.85);
-    ctx.globalAlpha=bAlpha;
-    // torso
-    ctx.fillStyle='#c8e0f0';
-    ctx.beginPath();ctx.roundRect(W/2-55,H*0.45,110,40,6);ctx.fill();
-    // arms at sides
-    ctx.beginPath();ctx.roundRect(W/2-75,H*0.47,22,30,5);ctx.fill();
-    ctx.beginPath();ctx.roundRect(W/2+53,H*0.47,22,30,5);ctx.fill();
-    // head
-    ctx.fillStyle=`rgb(${Math.floor(225-fade*60)},${Math.floor(185-fade*50)},${Math.floor(145-fade*40)})`;
-    ctx.beginPath();ctx.arc(W/2,H*0.42,24,0,Math.PI*2);ctx.fill();
-    // closed eyes — weakening
-    ctx.strokeStyle='rgba(60,30,10,0.7)';ctx.lineWidth=2;ctx.lineCap='round';
-    ctx.beginPath();ctx.moveTo(W/2-12,H*0.42);ctx.lineTo(W/2-4,H*0.42);ctx.stroke();
-    ctx.beginPath();ctx.moveTo(W/2+4,H*0.42);ctx.lineTo(W/2+12,H*0.42);ctx.stroke();
-    ctx.globalAlpha=1;
+    // bed (side view)
+    const bedY=H*0.56,bedH=38;
+    ctx.fillStyle='#888899';
+    ctx.beginPath();ctx.roundRect(80,bedY+bedH,14,55,3);ctx.fill();
+    ctx.beginPath();ctx.roundRect(W-94,bedY+bedH,14,55,3);ctx.fill();
+    ctx.fillStyle='#555566';ctx.beginPath();ctx.roundRect(80,bedY,W-160,bedH+8,6);ctx.fill();
+    ctx.fillStyle='#44445a';ctx.beginPath();ctx.roundRect(85,bedY-14,W-170,24,5);ctx.fill();
+    ctx.fillStyle='#ccccdd';ctx.beginPath();ctx.roundRect(85,bedY-14,W-170,20,5);ctx.fill();
+    ctx.fillStyle='#e0e0ee';ctx.beginPath();ctx.roundRect(88,bedY-30,80,22,8);ctx.fill();
+    ctx.fillStyle='#666677';ctx.beginPath();ctx.roundRect(72,bedY-55,22,bedH+70,5);ctx.fill();
+    ctx.fillStyle='#666677';ctx.beginPath();ctx.roundRect(W-94,bedY-25,18,bedH+40,5);ctx.fill();
 
-    // IV bag
-    ctx.fillStyle='rgba(180,220,255,0.7)';
-    ctx.beginPath();ctx.roundRect(W-80,50,35,60,6);ctx.fill();
-    ctx.strokeStyle='#8ab';ctx.lineWidth=2;
-    ctx.beginPath();ctx.moveTo(W-62,110);ctx.bezierCurveTo(W-62,140,W/2+74,H*0.48,W/2+64,H*0.48);ctx.stroke();
+    // person - head only, plain circle on pillow
+    const bpm=getBPM(t);
+    ctx.fillStyle='rgb(210,175,140)';
+    ctx.beginPath();ctx.arc(128,bedY-20,24,0,Math.PI*2);ctx.fill();
 
-    // EKG monitor (flatlines as t grows)
-    const monX=50,monY=50,monW=160,monH=80;
-    ctx.fillStyle='#111';ctx.beginPath();ctx.roundRect(monX,monY,monW,monH,6);ctx.fill();
-    ctx.strokeStyle='rgba(0,255,80,0.8)';ctx.lineWidth=2;
+    // IV stand
+    ctx.strokeStyle='#888';ctx.lineWidth=3;ctx.lineCap='butt';
+    ctx.beginPath();ctx.moveTo(W-110,H*0.72);ctx.lineTo(W-110,80);ctx.stroke();
+    ctx.fillStyle='rgba(160,210,240,0.75)';
+    ctx.beginPath();ctx.roundRect(W-135,80,50,70,8);ctx.fill();
+    ctx.strokeStyle='#7ab';ctx.lineWidth=1.5;ctx.strokeRect(W-135,80,50,70);
+    const liquidH=Math.max(8,60-t*0.025);
+    ctx.fillStyle='rgba(100,180,220,0.6)';
+    ctx.beginPath();ctx.roundRect(W-132,80+70-liquidH,44,liquidH,0);ctx.fill();
+    ctx.strokeStyle='rgba(160,220,240,0.6)';ctx.lineWidth=2;
+    ctx.beginPath();ctx.moveTo(W-110,150);ctx.bezierCurveTo(W-110,200,200,bedY-10,160,bedY-10);ctx.stroke();
+
+    // medicine bottle on side table
+    const tblX=W-80,tblY=bedY+bedH+8;
+    ctx.fillStyle='#4a4a5a';ctx.beginPath();ctx.roundRect(tblX-20,tblY,55,12,3);ctx.fill();
+    ctx.beginPath();ctx.roundRect(tblX-15,tblY+12,8,40,2);ctx.fill();
+    ctx.beginPath();ctx.roundRect(tblX+17,tblY+12,8,40,2);ctx.fill();
+    ctx.fillStyle='#cc6622';ctx.beginPath();ctx.roundRect(tblX-5,tblY-40,30,40,4);ctx.fill();
+    ctx.fillStyle='#884400';ctx.beginPath();ctx.roundRect(tblX+2,tblY-48,16,12,3);ctx.fill();
+    ctx.fillStyle='white';ctx.font='bold 7px IBM Plex Mono, monospace';ctx.textAlign='center';
+    ctx.fillText('$180K',tblX+10,tblY-24);
+    ctx.font='6px sans-serif';ctx.fillText('Rx',tblX+10,tblY-14);
+
+    // EKG monitor
+    const monX=18,monY=18,monW=200,monH=95;
+    ctx.fillStyle='#0a0a0a';ctx.beginPath();ctx.roundRect(monX,monY,monW,monH,8);ctx.fill();
+    ctx.strokeStyle='#222';ctx.lineWidth=2;ctx.strokeRect(monX,monY,monW,monH);
+    ctx.fillStyle='rgba(0,30,0,0.6)';ctx.beginPath();ctx.roundRect(monX+4,monY+4,monW-8,monH-8,5);ctx.fill();
+    ctx.strokeStyle='rgba(0,80,0,0.3)';ctx.lineWidth=0.5;
+    for(let gx=monX+4;gx<monX+monW-4;gx+=18){ctx.beginPath();ctx.moveTo(gx,monY+4);ctx.lineTo(gx,monY+monH-4);ctx.stroke();}
+    for(let gy=monY+4;gy<monY+monH-4;gy+=18){ctx.beginPath();ctx.moveTo(monX+4,gy);ctx.lineTo(monX+monW-4,gy);ctx.stroke();}
+
+    ekgHistory.push(getEKGSample(t));
+    if(ekgHistory.length>EKG_LEN)ekgHistory.shift();
+
+    const lineY=monY+monH/2+2;
+    const lineX0=monX+6,lineXW=monW-12;
+    ctx.strokeStyle='rgba(0,255,80,0.9)';ctx.lineWidth=1.8;ctx.lineCap='round';ctx.lineJoin='round';
     ctx.beginPath();
-    const pts=80;
-    for(let i=0;i<=pts;i++){
-      const x=monX+10+i*(monW-20)/pts;
-      let y=monY+monH/2;
-      if(fade<0.7){
-        // heartbeat
-        const phase=(i/pts)*4+t*0.05;
-        const beat=Math.sin(phase*Math.PI*2)*18*(1-fade/0.7);
-        if(Math.abs(Math.sin(phase*Math.PI))>0.85)y+=beat*2.5;
-        else y+=beat*0.3;
-      }
-      // flatline as fades
+    ekgHistory.forEach((v,i)=>{
+      const x=lineX0+i*(lineXW/EKG_LEN);
+      const y=lineY-v;
       i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);
-    }
+    });
     ctx.stroke();
-    // monitor text
-    ctx.fillStyle='rgba(0,255,80,0.6)';ctx.font='10px IBM Plex Mono, monospace';ctx.textAlign='left';
-    ctx.fillText(fade>0.8?'  ──  0 BPM':`BPM: ${Math.floor(72-fade*72)}`,monX+8,monY+monH-8);
 
-    // price tag on medicine bottle (untouched)
-    ctx.fillStyle='#cc6622';
-    ctx.beginPath();ctx.roundRect(W/2-160,H*0.6,55,35,4);ctx.fill();
-    ctx.fillStyle='white';ctx.font='bold 10px IBM Plex Mono, monospace';ctx.textAlign='center';
-    ctx.fillText('$180,000',W/2-132,H*0.6+14);
-    ctx.font='8px sans-serif';ctx.fillText('per course',W/2-132,H*0.6+26);
-    // X across it
-    ctx.strokeStyle='rgba(200,30,30,0.8)';ctx.lineWidth=3;
-    ctx.beginPath();ctx.moveTo(W/2-155,H*0.62);ctx.lineTo(W/2-110,H*0.65);ctx.stroke();
-    ctx.beginPath();ctx.moveTo(W/2-110,H*0.62);ctx.lineTo(W/2-155,H*0.65);ctx.stroke();
+    ctx.fillStyle=bpm>0?'rgba(0,255,80,0.85)':'rgba(255,60,60,0.9)';
+    ctx.font='bold 11px IBM Plex Mono, monospace';ctx.textAlign='left';
+    ctx.fillText(bpm>0?`${Math.round(bpm)} BPM`:'-- 0 BPM',monX+8,monY+monH-7);
 
-    // "NOT GUILTY" stamp
-    if(t>40){
-      const stampt=Math.min((t-40)/20,1);
-      ctx.save();ctx.translate(W/2+80,H*0.7);ctx.rotate(0.1);ctx.globalAlpha=stampt;
-      ctx.strokeStyle='#2255cc';ctx.lineWidth=3;ctx.strokeRect(-70,-20,140,40);
-      ctx.fillStyle='#2255cc';ctx.font='bold 22px IBM Plex Mono, monospace';ctx.textAlign='center';
-      ctx.fillText('NOT GUILTY',0,9);
-      ctx.globalAlpha=1;ctx.restore();
+    if(t>=420){
+      ctx.strokeStyle='rgba(255,60,60,0.7)';ctx.lineWidth=1.5;
+      ctx.beginPath();ctx.moveTo(lineX0,lineY);ctx.lineTo(lineX0+lineXW,lineY);ctx.stroke();
     }
 
-    // darkening overlay
-    if(fade>0.5){
-      ctx.fillStyle=`rgba(0,0,0,${(fade-0.5)*1.4})`;ctx.fillRect(0,0,W,H);
-    }
-
-    // final text
-    if(t>250){
-      const ta=Math.min((t-250)/30,1);
+    // red text after 5 seconds (~300 frames)
+    if(t>=300){
+      const ta=Math.min((t-300)/20,1);
+      ctx.save();
       ctx.globalAlpha=ta;
-      ctx.fillStyle='#cc4444';ctx.font='bold 16px IBM Plex Mono, monospace';ctx.textAlign='center';
-      ctx.fillText('PREVENTABLE DEATH',W/2,H-50);
-      ctx.fillStyle='#886666';ctx.font='12px IBM Plex Sans, sans-serif';
-      ctx.fillText('The drug was available. The price was not.',W/2,H-28);
-      ctx.globalAlpha=1;
+      ctx.fillStyle='rgba(0,0,0,0.55)';
+      ctx.fillRect(0,H/2-42,W,80);
+      ctx.fillStyle='#ee1111';
+      ctx.font='bold 34px IBM Plex Mono, monospace';
+      ctx.textAlign='center';
+      ctx.fillText('EVERYONE DIED.',W/2,H/2+6);
+      ctx.font='13px IBM Plex Sans, sans-serif';
+      ctx.fillStyle='#cc6666';
+      ctx.fillText('The drug was available. The price was not.',W/2,H/2+28);
+      ctx.restore();
     }
 
     t++;
-    if(t<500)requestAnimationFrame(draw);
+    if(t<1000)requestAnimationFrame(draw);
   }
   draw();
 }
