@@ -772,103 +772,343 @@ function goToOutcome(){
 function animatePlanetExplosion(ctx,canvas){
   const W=canvas.width,H=canvas.height;
   let t=0;
-  const particles=[];
-  // planet center
-  const cx=W/2,cy=H/2+20;
-  const pr=70;
+  const cx=W/2, cy=H/2+10, pr=72;
 
-  function spawnParticles(n){
+  // Particle pools
+  const debris=[];    // rocky chunks
+  const embers=[];    // fire/smoke trails
+  const shockwaves=[];// expanding rings
+  const stars=[];     // background stars
+
+  // Pre-generate stable stars
+  for(let i=0;i<160;i++){
+    stars.push({
+      x:Math.random()*W, y:Math.random()*H,
+      r:Math.random()*1.6+0.2,
+      base:Math.random(),
+      speed:Math.random()*0.04+0.01
+    });
+  }
+
+  // Planet chunks — large irregular debris pieces
+  function spawnDebris(n, burst){
     for(let i=0;i<n;i++){
-      const angle=Math.random()*Math.PI*2;
-      const speed=1.5+Math.random()*5;
-      particles.push({
-        x:cx+Math.cos(angle)*pr*(0.3+Math.random()*0.7),
-        y:cy+Math.sin(angle)*pr*(0.3+Math.random()*0.7),
-        vx:Math.cos(angle)*speed,vy:Math.sin(angle)*speed,
-        r:3+Math.random()*8,
-        color:`hsl(${Math.random()*40+10},100%,${50+Math.random()*30}%)`,
-        life:1,decay:0.008+Math.random()*0.015
+      const angle = Math.random()*Math.PI*2;
+      const dist  = burst ? pr*(0.1+Math.random()*0.9) : pr*(0.3+Math.random()*0.7);
+      const speed = burst ? (3+Math.random()*9) : (1+Math.random()*4);
+      const isOcean = Math.random()<0.45;
+      debris.push({
+        x: cx+Math.cos(angle)*dist,
+        y: cy+Math.sin(angle)*dist,
+        vx: Math.cos(angle)*speed*(0.7+Math.random()*0.6),
+        vy: Math.sin(angle)*speed*(0.7+Math.random()*0.6) - (burst?2:0.5),
+        rot: Math.random()*Math.PI*2,
+        rotV: (Math.random()-0.5)*0.15,
+        r: burst ? (6+Math.random()*18) : (3+Math.random()*10),
+        color: isOcean
+          ? `hsl(${200+Math.random()*30},${60+Math.random()*30}%,${30+Math.random()*25}%)`
+          : `hsl(${90+Math.random()*60},${40+Math.random()*40}%,${25+Math.random()*25}%)`,
+        life:1,
+        decay: burst ? (0.003+Math.random()*0.007) : (0.005+Math.random()*0.01)
       });
     }
   }
 
+  // Embers — small hot sparks
+  function spawnEmbers(n, intense){
+    for(let i=0;i<n;i++){
+      const angle = Math.random()*Math.PI*2;
+      const speed = intense ? (4+Math.random()*12) : (2+Math.random()*6);
+      embers.push({
+        x: cx+(Math.random()-0.5)*pr*2,
+        y: cy+(Math.random()-0.5)*pr*2,
+        vx: Math.cos(angle)*speed,
+        vy: Math.sin(angle)*speed - (intense?1:0),
+        r: intense ? (2+Math.random()*5) : (1+Math.random()*3),
+        hue: Math.random()*50,          // orange-red
+        life:1,
+        decay: 0.012+Math.random()*0.025
+      });
+    }
+  }
+
+  // Shockwave ring
+  function spawnShockwave(delay, color, maxR, speed, thick){
+    shockwaves.push({delay, r:0, maxR, speed, color, thick, alpha:1});
+  }
+
+  // Setup shockwaves at known times
+  spawnShockwave(60,  'rgba(255,220,100,X)', W*0.8, 5.5, 8);
+  spawnShockwave(80,  'rgba(255,140,40,X)',  W*0.6, 4.0, 5);
+  spawnShockwave(100, 'rgba(255,80,20,X)',   W*0.5, 3.2, 4);
+  spawnShockwave(140, 'rgba(200,60,10,X)',   W*0.4, 2.5, 3);
+
   function draw(){
-    ctx.clearRect(0,0,W,H);
-    // bg
-    const bg=ctx.createRadialGradient(cx,cy,0,cx,cy,W*0.7);
-    bg.addColorStop(0,`rgba(60,0,0,${Math.min(t/60,1)})`);
-    bg.addColorStop(1,'#0a0006');
-    ctx.fillStyle=bg;ctx.fillRect(0,0,W,H);
+    // ── BACKGROUND ──────────────────────────────────────────────
+    ctx.fillStyle='#000005';
+    ctx.fillRect(0,0,W,H);
 
-    // stars
-    ctx.fillStyle='white';
-    for(let i=0;i<80;i++){
-      const sx=((i*137+50)%W),sy=((i*89+30)%H);
-      ctx.globalAlpha=0.5+0.5*Math.sin(t*0.05+i);
-      ctx.fillRect(sx,sy,1.5,1.5);
-    }
-    ctx.globalAlpha=1;
+    // Slowly brightening sky from the explosion
+    const glowAmt = Math.min(t/80, 1);
+    const skyGlow = ctx.createRadialGradient(cx,cy,0,cx,cy,W);
+    skyGlow.addColorStop(0, `rgba(180,60,0,${glowAmt*0.55})`);
+    skyGlow.addColorStop(0.4,`rgba(80,20,0,${glowAmt*0.25})`);
+    skyGlow.addColorStop(1,  'rgba(0,0,0,0)');
+    ctx.fillStyle=skyGlow;
+    ctx.fillRect(0,0,W,H);
 
-    const phase=Math.min(t/120,1);
-    if(phase<1){
-      // draw planet shrinking/cracking
-      const scale=1-phase*0.4;
-      ctx.save();ctx.translate(cx,cy);ctx.scale(scale,scale);
-      // planet body
-      const pg=ctx.createRadialGradient(-20,-20,5,0,0,pr);
-      pg.addColorStop(0,'#5a8fd6');pg.addColorStop(0.5,'#2a5ca8');pg.addColorStop(1,'#0a1a40');
-      ctx.beginPath();ctx.arc(0,0,pr,0,Math.PI*2);ctx.fillStyle=pg;ctx.fill();
-      // continents
-      ctx.fillStyle='rgba(60,140,60,0.85)';
-      ctx.beginPath();ctx.ellipse(-20,-10,30,18,0.5,0,Math.PI*2);ctx.fill();
-      ctx.beginPath();ctx.ellipse(25,15,22,12,-0.3,0,Math.PI*2);ctx.fill();
-      ctx.beginPath();ctx.ellipse(-5,30,15,8,0.2,0,Math.PI*2);ctx.fill();
-      // crack overlay
-      if(phase>0.2){
-        ctx.strokeStyle=`rgba(255,120,0,${(phase-0.2)/0.8})`;
-        ctx.lineWidth=2+phase*4;
-        ctx.beginPath();ctx.moveTo(-pr*0.3,-pr*0.8);ctx.lineTo(0,0);ctx.lineTo(pr*0.5,pr*0.6);ctx.stroke();
-        ctx.beginPath();ctx.moveTo(pr*0.6,-pr*0.5);ctx.lineTo(0,0);ctx.lineTo(-pr*0.7,pr*0.4);ctx.stroke();
-      }
-      ctx.restore();
-    }
-
-    // explosion ring
-    if(t>80){
-      const er=(t-80)*4;
-      ctx.beginPath();ctx.arc(cx,cy,er,0,Math.PI*2);
-      ctx.strokeStyle=`rgba(255,180,0,${Math.max(0,1-(t-80)/80)})`;
-      ctx.lineWidth=6;ctx.stroke();
-    }
-
-    // particles
-    particles.forEach((p,i)=>{
-      p.x+=p.vx;p.y+=p.vy;p.vy+=0.05;p.life-=p.decay;
-      ctx.globalAlpha=Math.max(0,p.life);
-      ctx.beginPath();ctx.arc(p.x,p.y,p.r*p.life,0,Math.PI*2);
-      ctx.fillStyle=p.color;ctx.fill();
+    // Stars
+    stars.forEach(s=>{
+      const twinkle = 0.3+0.7*Math.abs(Math.sin(t*s.speed+s.base*10));
+      const hide = Math.max(0, 1 - glowAmt*1.4); // stars fade as sky brightens
+      ctx.globalAlpha = twinkle * hide;
+      ctx.fillStyle='white';
+      ctx.beginPath();ctx.arc(s.x,s.y,s.r,0,Math.PI*2);ctx.fill();
     });
     ctx.globalAlpha=1;
 
-    // spawn more particles during explosion
-    if(t>60&&t<200&&t%3===0)spawnParticles(8);
+    // ── PLANET ──────────────────────────────────────────────────
+    const explodePhase = Math.min(Math.max((t-30)/90,0),1); // 0→1 as planet dies
+    const intact = explodePhase < 1;
 
-    // text
-    if(t>150){
-      const alpha=Math.min((t-150)/30,1);
-      ctx.globalAlpha=alpha;
-      ctx.fillStyle='#ff4444';
-      ctx.font='bold 22px IBM Plex Mono, monospace';
+    if(intact){
+      const scale = 1 - explodePhase*0.25;
+      ctx.save();
+      ctx.translate(cx,cy);
+      ctx.scale(scale,scale);
+
+      // Atmosphere glow
+      const atmo = ctx.createRadialGradient(0,0,pr*0.85,0,0,pr*1.35);
+      atmo.addColorStop(0,`rgba(80,160,255,${0.3*(1-explodePhase)})`);
+      atmo.addColorStop(1,'rgba(0,0,0,0)');
+      ctx.fillStyle=atmo;
+      ctx.beginPath();ctx.arc(0,0,pr*1.35,0,Math.PI*2);ctx.fill();
+
+      // Ocean base
+      const ocean = ctx.createRadialGradient(-pr*0.3,-pr*0.3,pr*0.1,0,0,pr);
+      ocean.addColorStop(0,'#5a9fd8');
+      ocean.addColorStop(0.55,'#1e5fa8');
+      ocean.addColorStop(1,'#0a1a45');
+      ctx.beginPath();ctx.arc(0,0,pr,0,Math.PI*2);
+      ctx.fillStyle=ocean;ctx.fill();
+
+      // Continents
+      ctx.save();ctx.clip();
+      const lands=[
+        {x:-18,y:-12,rx:32,ry:20,rot:0.6},
+        {x:28,y:14,rx:24,ry:14,rot:-0.3},
+        {x:-8,y:32,rx:18,ry:9,rot:0.2},
+        {x:20,y:-38,rx:14,ry:8,rot:0.8},
+      ];
+      lands.forEach(l=>{
+        ctx.fillStyle=`rgba(55,130,55,${0.9-explodePhase*0.5})`;
+        ctx.beginPath();ctx.ellipse(l.x,l.y,l.rx,l.ry,l.rot,0,Math.PI*2);ctx.fill();
+        // ice cap highlight
+        ctx.fillStyle=`rgba(220,235,255,${0.25*(1-explodePhase)})`;
+        ctx.beginPath();ctx.ellipse(l.x-l.rx*0.3,l.y-l.ry*0.4,l.rx*0.25,l.ry*0.2,l.rot,0,Math.PI*2);ctx.fill();
+      });
+      ctx.restore();
+
+      // Specular highlight
+      const spec = ctx.createRadialGradient(-pr*0.35,-pr*0.35,2,-pr*0.25,-pr*0.25,pr*0.55);
+      spec.addColorStop(0,`rgba(255,255,255,${0.22*(1-explodePhase)})`);
+      spec.addColorStop(1,'rgba(255,255,255,0)');
+      ctx.fillStyle=spec;
+      ctx.beginPath();ctx.arc(0,0,pr,0,Math.PI*2);ctx.fill();
+
+      // Cracks appearing
+      if(explodePhase>0.15){
+        const cAlpha = (explodePhase-0.15)/0.85;
+        ctx.save();
+        // Clip to planet circle
+        ctx.beginPath();ctx.arc(0,0,pr,0,Math.PI*2);ctx.clip();
+        // Glowing interior peeking through cracks
+        const crackGlow = ctx.createRadialGradient(0,0,0,0,0,pr);
+        crackGlow.addColorStop(0,`rgba(255,200,30,${cAlpha*0.9})`);
+        crackGlow.addColorStop(0.5,`rgba(255,80,0,${cAlpha*0.6})`);
+        crackGlow.addColorStop(1,'rgba(0,0,0,0)');
+        ctx.fillStyle=crackGlow;ctx.fillRect(-pr,-pr,pr*2,pr*2);
+
+        // Crack lines
+        const cracks=[
+          [[-pr*0.2,-pr],[0,0],[pr*0.5,pr*0.7]],
+          [[pr*0.7,-pr*0.4],[0,0],[-pr*0.6,pr*0.5]],
+          [[-pr*0.8,pr*0.2],[pr*0.1,-pr*0.1],[pr*0.3,-pr*0.8]],
+          [[0,pr*0.9],[-pr*0.2,pr*0.2],[pr*0.4,-pr*0.1]],
+        ];
+        cracks.forEach((pts,ci)=>{
+          const delay = ci*0.12;
+          const ca = Math.max(0,(cAlpha-delay)/(1-delay));
+          if(ca<=0)return;
+          ctx.strokeStyle=`rgba(255,220,80,${ca})`;
+          ctx.lineWidth=1+ca*3;
+          ctx.shadowColor='rgba(255,160,0,0.8)';
+          ctx.shadowBlur=8*ca;
+          ctx.beginPath();
+          ctx.moveTo(pts[0][0],pts[0][1]);
+          pts.slice(1).forEach(p=>ctx.lineTo(p[0],p[1]));
+          ctx.stroke();
+          ctx.shadowBlur=0;
+        });
+        ctx.restore();
+      }
+
+      ctx.restore();
+    }
+
+    // ── SHOCKWAVES ───────────────────────────────────────────────
+    shockwaves.forEach(sw=>{
+      if(t < sw.delay) return;
+      sw.r += sw.speed;
+      if(sw.r > sw.maxR) return;
+      const prog = sw.r/sw.maxR;
+      const a = (1-prog)*(1-prog);
+      ctx.beginPath();ctx.arc(cx,cy,sw.r,0,Math.PI*2);
+      ctx.strokeStyle=sw.color.replace('X', a.toFixed(3));
+      ctx.lineWidth=sw.thick*(1-prog*0.7);
+      ctx.stroke();
+    });
+
+    // ── SPAWN SCHEDULE ───────────────────────────────────────────
+    if(t===60) spawnDebris(30, true);
+    if(t===62) spawnEmbers(60, true);
+    if(t===70) spawnDebris(20, true);
+    if(t===75) spawnEmbers(40, true);
+    if(t===85) spawnDebris(15, false);
+    if(t>60 && t<200 && t%4===0) spawnEmbers(8, false);
+    if(t>60 && t<150 && t%8===0) spawnDebris(5, false);
+
+    // ── DEBRIS ───────────────────────────────────────────────────
+    debris.forEach(d=>{
+      if(d.life<=0)return;
+      d.x+=d.vx; d.y+=d.vy;
+      d.vy+=0.04;   // gravity
+      d.vx*=0.995;  // drag
+      d.rot+=d.rotV;
+      d.life-=d.decay;
+      ctx.save();
+      ctx.globalAlpha=Math.max(0,d.life);
+      ctx.translate(d.x,d.y);
+      ctx.rotate(d.rot);
+      // Draw irregular polygon chunk
+      ctx.beginPath();
+      const sides=5+Math.floor(Math.random()*2);
+      for(let s=0;s<sides;s++){
+        const a=s/sides*Math.PI*2;
+        const r=d.r*(0.6+0.4*Math.sin(a*2.3+d.rot));
+        s===0?ctx.moveTo(Math.cos(a)*r,Math.sin(a)*r):ctx.lineTo(Math.cos(a)*r,Math.sin(a)*r);
+      }
+      ctx.closePath();
+      ctx.fillStyle=d.color;
+      ctx.fill();
+      // Hot edge glow on larger chunks
+      if(d.r>8 && d.life>0.4){
+        ctx.strokeStyle=`rgba(255,140,30,${d.life*0.6})`;
+        ctx.lineWidth=1.5;ctx.stroke();
+      }
+      ctx.restore();
+    });
+
+    // ── EMBERS / FIRE SPARKS ─────────────────────────────────────
+    embers.forEach(e=>{
+      if(e.life<=0)return;
+      e.x+=e.vx; e.y+=e.vy;
+      e.vy+=0.02;
+      e.vx*=0.98;
+      e.life-=e.decay;
+      const alpha=Math.max(0,e.life);
+      // Inner hot core
+      const eg=ctx.createRadialGradient(e.x,e.y,0,e.x,e.y,e.r*2);
+      eg.addColorStop(0,`hsla(${e.hue},100%,90%,${alpha})`);
+      eg.addColorStop(0.4,`hsla(${e.hue+10},100%,60%,${alpha*0.8})`);
+      eg.addColorStop(1,`hsla(${e.hue+20},80%,30%,0)`);
+      ctx.fillStyle=eg;
+      ctx.beginPath();ctx.arc(e.x,e.y,e.r*2,0,Math.PI*2);ctx.fill();
+    });
+
+    // ── CENTRAL FIREBALL ─────────────────────────────────────────
+    if(t>=60 && t<220){
+      const ft=(t-60)/160;
+      const fr=pr*(0.8+ft*2.5);
+      const fi=Math.max(0,(1-ft*1.1));
+      // Outer smoke
+      const smoke=ctx.createRadialGradient(cx,cy,fr*0.3,cx,cy,fr*1.5);
+      smoke.addColorStop(0,`rgba(40,20,10,${fi*0.5})`);
+      smoke.addColorStop(0.6,`rgba(20,10,5,${fi*0.25})`);
+      smoke.addColorStop(1,'rgba(0,0,0,0)');
+      ctx.fillStyle=smoke;
+      ctx.beginPath();ctx.arc(cx,cy,fr*1.5,0,Math.PI*2);ctx.fill();
+      // Hot core
+      const fire=ctx.createRadialGradient(cx,cy,0,cx,cy,fr);
+      fire.addColorStop(0,  `rgba(255,255,200,${fi*0.95})`);
+      fire.addColorStop(0.2,`rgba(255,200,50,${fi*0.85})`);
+      fire.addColorStop(0.5,`rgba(255,80,10,${fi*0.65})`);
+      fire.addColorStop(0.8,`rgba(180,30,0,${fi*0.35})`);
+      fire.addColorStop(1,  'rgba(0,0,0,0)');
+      ctx.fillStyle=fire;
+      ctx.beginPath();ctx.arc(cx,cy,fr,0,Math.PI*2);ctx.fill();
+    }
+
+    // ── NUCLEAR MUSHROOM CLOUD (appears late) ────────────────────
+    if(t>160){
+      const mt=(t-160)/120;
+      const mAlpha=Math.min(mt*1.5,0.7);
+      // stem
+      const stemH=mt*H*0.55;
+      const stemW=12+mt*20;
+      const stemY=cy+pr*0.5;
+      const sg=ctx.createLinearGradient(cx-stemW,stemY,cx+stemW,stemY);
+      sg.addColorStop(0,'rgba(0,0,0,0)');
+      sg.addColorStop(0.5,`rgba(80,50,30,${mAlpha})`);
+      sg.addColorStop(1,'rgba(0,0,0,0)');
+      ctx.fillStyle=sg;
+      ctx.beginPath();
+      ctx.moveTo(cx-stemW/2,stemY);
+      ctx.bezierCurveTo(cx-stemW,stemY-stemH*0.5,cx+stemW,stemY-stemH*0.5,cx+stemW/2,stemY-stemH);
+      ctx.lineTo(cx-stemW/2,stemY-stemH);
+      ctx.bezierCurveTo(cx+stemW*0.5,stemY-stemH*0.5,cx-stemW*0.5,stemY-stemH*0.5,cx-stemW/2,stemY);
+      ctx.closePath();ctx.fill();
+      // cap
+      const capR=mt*70+20;
+      const capY=cy+pr*0.5-stemH;
+      const cap=ctx.createRadialGradient(cx,capY,0,cx,capY,capR*1.5);
+      cap.addColorStop(0,`rgba(120,80,50,${mAlpha*0.9})`);
+      cap.addColorStop(0.5,`rgba(70,40,25,${mAlpha*0.7})`);
+      cap.addColorStop(1,'rgba(0,0,0,0)');
+      ctx.fillStyle=cap;
+      ctx.beginPath();ctx.ellipse(cx,capY,capR*1.5,capR*0.65,0,0,Math.PI*2);ctx.fill();
+    }
+
+    // ── FLASH ────────────────────────────────────────────────────
+    if(t>=58&&t<=75){
+      const fa=Math.max(0,1-Math.abs(t-65)/8);
+      ctx.fillStyle=`rgba(255,250,220,${fa*0.92})`;
+      ctx.fillRect(0,0,W,H);
+    }
+
+    // ── TEXT ─────────────────────────────────────────────────────
+    if(t>200){
+      const ta=Math.min((t-200)/30,1);
+      ctx.save();
+      ctx.globalAlpha=ta;
+      ctx.fillStyle='rgba(0,0,0,0.5)';
+      ctx.fillRect(0,H-70,W,70);
+      ctx.fillStyle='#ff3300';
+      ctx.font='bold 20px IBM Plex Mono, monospace';
       ctx.textAlign='center';
+      ctx.shadowColor='rgba(255,80,0,0.9)';
+      ctx.shadowBlur=18;
       ctx.fillText('MUTUAL ASSURED DESTRUCTION',cx,H-40);
-      ctx.globalAlpha=1;
+      ctx.shadowBlur=0;
+      ctx.restore();
     }
 
     t++;
-    if(t<400)requestAnimationFrame(draw);
+    if(t<600) requestAnimationFrame(draw);
   }
   draw();
 }
+
 
 function animatePlanetSafe(ctx,canvas){
   const W=canvas.width,H=canvas.height;
